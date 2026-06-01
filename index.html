@@ -11,202 +11,236 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <style>
 :root{
-  --cream:#F5F0E6;
-  --paper:#FBF7EE;
-  --ink:#1A1814;
-  --ink-soft:#3A342A;
-  --ink-mute:#6B5F4D;
-  --rule:#C9BFA8;
-  --rule-soft:#DDD3BB;
-  --gold:#A8893A;
-  --red:#9C2A2A;
-  --red-soft:#D26A4A;
-  --green:#3A6B3A;
-  --blue:#2C4A6B;
+  --bg:#0E0F13;
+  --panel:#15171E;
+  --panel-2:#1B1E27;
+  --elevated:#21242F;
+  --border:#2C303C;
+  --border-soft:#23262F;
+  --text:#E9E6DD;
+  --text-soft:#B8B3A6;
+  --text-mute:#7C776B;
+  --gold:#D4A94A;
+  --gold-bright:#E8C56A;
+  --red:#E2674A;
+  --red-deep:#C0392B;
+  --green:#5FA35F;
+  --blue:#4A7AAB;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
 body{
-  background:var(--cream);
-  color:var(--ink);
+  background:var(--bg);
+  color:var(--text);
   font-family:'Plus Jakarta Sans',sans-serif;
   font-size:14px;
   line-height:1.55;
   -webkit-font-smoothing:antialiased;
-  display:flex;
-  flex-direction:column;
 }
 h1,h2,h3,.serif{font-family:'Fraunces',Georgia,serif;font-weight:500;letter-spacing:-.01em;line-height:1.15}
 .num,code,.mono{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
 
 /* HEADER */
 header{
-  border-bottom:1px solid var(--rule);
-  background:var(--cream);
-  padding:18px 28px 16px;
+  border-bottom:1px solid var(--border);
+  background:var(--panel);
+  padding:16px 24px 14px;
 }
-header .top{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:16px;margin-bottom:14px}
-header h1{font-size:24px;font-weight:500}
+header .top{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:14px;margin-bottom:12px}
+header h1{font-size:22px;font-weight:500;color:var(--text)}
 header h1 em{font-style:italic;color:var(--gold);font-weight:400}
-header .tag{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:var(--ink-mute);text-transform:uppercase}
+header .tag{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:var(--text-mute);text-transform:uppercase}
 
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule)}
-.stat{background:var(--paper);padding:12px 16px}
-.stat-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:4px}
-.stat-val{font-family:'Fraunces',serif;font-size:24px;font-weight:500;color:var(--ink);line-height:1}
-.stat-val.big{color:var(--red);font-size:30px}
-.stat-val .suf{font-size:14px;color:var(--ink-mute);margin-left:4px}
-.stat-sub{font-size:11px;color:var(--ink-mute);margin-top:4px;font-family:'JetBrains Mono',monospace}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--border);border:1px solid var(--border)}
+.stat{background:var(--panel-2);padding:11px 15px}
+.stat-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-mute);margin-bottom:4px}
+.stat-val{font-family:'Fraunces',serif;font-size:23px;font-weight:500;color:var(--text);line-height:1}
+.stat-val.big{color:var(--red);font-size:28px}
+.stat-sub{font-size:11px;color:var(--text-mute);margin-top:4px;font-family:'JetBrains Mono',monospace}
 
-/* LAYOUT */
-main{flex:1;display:grid;grid-template-columns:1fr 380px;min-height:0}
-@media(max-width:980px){main{grid-template-columns:1fr;grid-template-rows:auto auto}}
+/* MAP SECTION — fixed height grid, no overlap */
+.map-section{
+  display:grid;
+  grid-template-columns:1fr 380px;
+  height:72vh;
+  min-height:560px;
+  border-bottom:1px solid var(--border);
+}
+@media(max-width:980px){
+  .map-section{grid-template-columns:1fr;height:auto;min-height:0}
+  #map-wrap{height:55vh;min-height:400px}
+  aside{height:auto;max-height:none;border-left:none;border-top:1px solid var(--border)}
+}
 
-#map-wrap{position:relative;border-right:1px solid var(--rule);background:#E8DFC9;min-height:520px}
-#map{width:100%;height:100%;min-height:520px}
-.leaflet-container{background:#E8DFC9;font-family:'Plus Jakarta Sans',sans-serif}
+#map-wrap{position:relative;background:#0A0B0E;overflow:hidden}
+#map{position:absolute;inset:0;width:100%;height:100%}
+.leaflet-container{background:#0A0B0E;font-family:'Plus Jakarta Sans',sans-serif}
 
 /* MAP CONTROL OVERLAY */
 .map-controls{
-  position:absolute;top:14px;left:14px;z-index:500;
-  background:var(--paper);border:1px solid var(--rule);
-  padding:14px 16px;border-radius:2px;box-shadow:0 8px 20px -8px rgba(0,0,0,.2);
-  max-width:240px;
+  position:absolute;top:12px;left:12px;z-index:600;
+  background:rgba(27,30,39,.94);border:1px solid var(--border);
+  padding:12px 14px;border-radius:3px;backdrop-filter:blur(8px);
+  max-width:230px;box-shadow:0 8px 24px -8px rgba(0,0,0,.6);
 }
-.map-controls .title{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:8px}
-.map-controls .toggle-row{display:flex;gap:0;border:1px solid var(--rule);margin-bottom:10px}
-.map-controls button{
-  flex:1;padding:6px 10px;background:transparent;border:none;cursor:pointer;
-  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;
-  color:var(--ink-mute);transition:all .15s;
+.map-controls .title{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-mute);margin-bottom:7px}
+.toggle-row{display:flex;gap:0;border:1px solid var(--border);margin-bottom:8px;border-radius:2px;overflow:hidden}
+.toggle-row button{
+  flex:1;padding:6px 8px;background:transparent;border:none;cursor:pointer;
+  font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--text-mute);transition:all .15s;
 }
-.map-controls button.active{background:var(--ink);color:var(--cream)}
-.map-controls button:not(:last-child){border-right:1px solid var(--rule)}
-.legend{font-size:11px;color:var(--ink-soft);line-height:1.5}
+.toggle-row button.active{background:var(--gold);color:#1A1814;font-weight:600}
+.toggle-row button:not(:last-child){border-right:1px solid var(--border)}
+.legend{font-size:11px;color:var(--text-soft);line-height:1.5}
 .legend-row{display:flex;align-items:center;gap:8px;margin-top:4px}
-.legend-dot{border-radius:50%;border:1px solid var(--ink);flex-shrink:0}
+.legend-dot{border-radius:50%;border:1px solid rgba(255,255,255,.3);flex-shrink:0}
+
+/* MAP STATUS BAR (bottom) */
+.map-status{
+  position:absolute;bottom:12px;left:12px;right:12px;z-index:600;
+  background:rgba(27,30,39,.94);border:1px solid var(--border);
+  padding:9px 14px;border-radius:3px;backdrop-filter:blur(8px);
+  font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-soft);
+  display:flex;align-items:center;gap:10px;box-shadow:0 8px 24px -8px rgba(0,0,0,.6);
+  pointer-events:none;
+}
+.map-status .dot{width:8px;height:8px;border-radius:50%;background:var(--gold);flex-shrink:0;animation:pulse 2s infinite}
+.map-status .dot.loading{background:var(--blue)}
+.map-status .dot.done{background:var(--green);animation:none}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* building preview toggle */
+.bldg-controls{
+  position:absolute;top:12px;right:12px;z-index:600;
+  background:rgba(27,30,39,.94);border:1px solid var(--border);
+  padding:12px 14px;border-radius:3px;backdrop-filter:blur(8px);
+  max-width:220px;box-shadow:0 8px 24px -8px rgba(0,0,0,.6);
+}
+.bldg-controls label{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:11px;color:var(--text-soft)}
+.bldg-controls input{accent-color:var(--gold);width:14px;height:14px;cursor:pointer}
+.bldg-controls .sim-warn{font-size:9px;color:var(--red);margin-top:6px;font-family:'JetBrains Mono',monospace;letter-spacing:.04em;line-height:1.4;display:none}
+.bldg-controls .sim-warn.show{display:block}
+.bldg-controls .bldg-legend{margin-top:8px;font-size:10px;color:var(--text-soft);display:none}
+.bldg-controls .bldg-legend.show{display:block}
+.bldg-controls .bldg-legend .lr{display:flex;align-items:center;gap:6px;margin-top:3px}
+.bldg-controls .bldg-legend .sw{width:12px;height:12px;border:1px solid rgba(255,255,255,.3)}
 
 /* SIDE PANEL */
 aside{
-  background:var(--paper);
+  background:var(--panel);
   overflow-y:auto;
-  padding:20px 24px;
-  border-left:1px solid var(--rule);
-  min-width:0;
+  padding:18px 22px;
+  border-left:1px solid var(--border);
 }
-.placeholder{color:var(--ink-mute);font-style:italic;padding:24px 0;text-align:center}
+aside::-webkit-scrollbar{width:8px}
+aside::-webkit-scrollbar-track{background:var(--panel)}
+aside::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+.placeholder{color:var(--text-mute);font-style:italic;padding:24px 0;text-align:center}
 .placeholder .arrow{font-size:28px;color:var(--gold);margin-bottom:12px;font-family:'Fraunces',serif}
 
-.detail-title{font-family:'Fraunces',serif;font-size:28px;font-weight:500;margin-bottom:4px;color:var(--ink)}
-.detail-sub{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;color:var(--gold);text-transform:uppercase;margin-bottom:18px}
+.detail-title{font-family:'Fraunces',serif;font-size:27px;font-weight:500;margin-bottom:4px;color:var(--text)}
+.detail-sub{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;color:var(--gold);text-transform:uppercase;margin-bottom:16px}
 
-.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);border:1px solid var(--rule);margin-bottom:18px}
-.metric{background:var(--paper);padding:10px 12px}
-.metric-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:2px}
-.metric-val{font-family:'Fraunces',serif;font-size:20px;color:var(--ink);line-height:1.1}
+.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:16px}
+.metric{background:var(--panel-2);padding:10px 12px}
+.metric-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-mute);margin-bottom:2px}
+.metric-val{font-family:'Fraunces',serif;font-size:20px;color:var(--text);line-height:1.1}
 .metric-val.gap{color:var(--red)}
 .metric-val.ok{color:var(--green)}
-.metric-sub{font-size:11px;color:var(--ink-mute);margin-top:2px}
+.metric-sub{font-size:11px;color:var(--text-mute);margin-top:2px}
 
-.section-h{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin:18px 0 8px;font-weight:600}
+.section-h{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin:16px 0 8px;font-weight:600}
 
-.gap-bar{display:flex;height:24px;border:1px solid var(--ink);margin-bottom:10px;font-size:10px}
-.gap-bar-pbg{background:var(--ink);color:var(--cream);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;min-width:0;padding:0 4px}
-.gap-bar-imb{background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;min-width:0;padding:0 4px}
-.gap-bar-gap{background:var(--paper);color:var(--red);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:600;padding:0 4px;flex:1;border-left:1px solid var(--rule)}
+.gap-bar{display:flex;height:24px;border:1px solid var(--border);margin-bottom:10px;font-size:10px;border-radius:2px;overflow:hidden}
+.gap-bar-pbg{background:var(--green);color:#0A0B0E;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;min-width:0;padding:0 4px;font-weight:600}
+.gap-bar-imb{background:var(--gold);color:#1A1814;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;min-width:0;padding:0 4px;font-weight:600}
+.gap-bar-gap{background:var(--panel-2);color:var(--red);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:600;padding:0 4px;flex:1}
 
-.composition-row{display:grid;grid-template-columns:90px 1fr 60px;gap:8px;align-items:center;margin-bottom:6px;font-size:12px}
-.composition-label{color:var(--ink-soft);font-size:11px}
-.composition-bar-wrap{background:var(--rule-soft);height:14px;border:1px solid var(--rule)}
-.composition-bar{background:var(--gold);height:100%}
-.composition-num{font-family:'JetBrains Mono',monospace;text-align:right;color:var(--ink)}
+.composition-row{display:grid;grid-template-columns:80px 1fr 56px;gap:8px;align-items:center;margin-bottom:6px;font-size:12px}
+.composition-label{color:var(--text-soft);font-size:11px}
+.composition-bar-wrap{background:var(--elevated);height:14px;border:1px solid var(--border);border-radius:2px;overflow:hidden}
+.composition-bar{height:100%}
+.composition-num{font-family:'JetBrains Mono',monospace;text-align:right;color:var(--text)}
 
 .sample-card{
-  border:1px solid var(--rule);
-  padding:10px 12px;
+  border:1px solid var(--border);
+  padding:9px 11px;
   margin-bottom:6px;
-  background:var(--cream);
+  background:var(--panel-2);
   font-size:12px;
+  border-radius:2px;
 }
-.sample-nama{font-weight:600;color:var(--ink);margin-bottom:2px}
-.sample-meta{color:var(--ink-mute);font-size:11px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.sample-nama{font-weight:600;color:var(--text);margin-bottom:2px}
+.sample-meta{color:var(--text-mute);font-size:11px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .sample-fungsi{color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.05em;text-transform:uppercase;margin-top:2px}
 
-.note{background:var(--cream);border-left:2px solid var(--gold);padding:10px 14px;margin-top:14px;font-size:12px;color:var(--ink-soft);line-height:1.55}
+.note{background:var(--panel-2);border-left:2px solid var(--gold);padding:10px 14px;margin-top:14px;font-size:12px;color:var(--text-soft);line-height:1.55;border-radius:0 2px 2px 0}
 
-/* TABLE BOTTOM SECTION */
-.table-section{
-  background:var(--cream);
-  border-top:1px solid var(--rule);
-  padding:24px 28px 32px;
-}
-.table-section h2{font-size:22px;margin-bottom:6px}
-.table-section .lede{color:var(--ink-mute);font-size:13px;margin-bottom:18px;font-family:'JetBrains Mono',monospace;letter-spacing:.03em}
+/* TABLE */
+.table-section{background:var(--bg);padding:24px;border-bottom:1px solid var(--border)}
+.table-section h2{font-size:22px;margin-bottom:6px;color:var(--text)}
+.table-section .lede{color:var(--text-mute);font-size:13px;margin-bottom:16px;font-family:'JetBrains Mono',monospace;letter-spacing:.03em}
 
-table.ranking{width:100%;border-collapse:collapse;font-size:13px;background:var(--paper);border:1px solid var(--rule)}
+table.ranking{width:100%;border-collapse:collapse;font-size:13px;background:var(--panel);border:1px solid var(--border)}
 table.ranking th{
   font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;
-  text-transform:uppercase;color:var(--ink-mute);font-weight:500;
-  text-align:left;padding:10px 12px;border-bottom:1.5px solid var(--ink);
-  background:var(--cream);position:sticky;top:0;cursor:pointer;
-  user-select:none;
+  text-transform:uppercase;color:var(--text-mute);font-weight:500;
+  text-align:left;padding:10px 12px;border-bottom:1.5px solid var(--gold);
+  background:var(--panel-2);cursor:pointer;user-select:none;
 }
-table.ranking th:hover{background:var(--rule-soft)}
+table.ranking th:hover{background:var(--elevated);color:var(--text-soft)}
 table.ranking th.num{text-align:right}
 table.ranking th .arrow{color:var(--gold);margin-left:4px}
-table.ranking td{padding:8px 12px;border-bottom:1px solid var(--rule-soft);cursor:pointer}
+table.ranking td{padding:8px 12px;border-bottom:1px solid var(--border-soft);cursor:pointer;color:var(--text-soft)}
 table.ranking td.num{font-family:'JetBrains Mono',monospace;text-align:right;font-variant-numeric:tabular-nums}
-table.ranking tr:hover td{background:rgba(168,137,58,.08)}
-table.ranking tr.active td{background:rgba(168,137,58,.16);font-weight:600}
+table.ranking tr:hover td{background:rgba(212,169,74,.08)}
+table.ranking tr.active td{background:rgba(212,169,74,.15);color:var(--text)}
 
-.rank-cell{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-mute);width:32px}
-.kec-cell{font-weight:600;color:var(--ink)}
+.rank-cell{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-mute);width:32px}
+.kec-cell{font-weight:600;color:var(--text)}
 .gap-pct-cell{color:var(--red);font-weight:600}
 
 /* FOOTER */
-footer{
-  background:var(--paper);
-  border-top:1px solid var(--rule);
-  padding:32px 28px 40px;
-  font-size:13px;
-  color:var(--ink-mute);
-  line-height:1.65;
-}
+footer{background:var(--panel);padding:30px 24px 40px;font-size:13px;color:var(--text-mute);line-height:1.65}
 footer .container{max-width:900px;margin:0 auto}
-footer h3{font-size:18px;color:var(--ink);margin-bottom:10px}
+footer h3{font-size:18px;color:var(--text);margin-bottom:10px}
 footer h4{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:18px 0 6px;font-weight:600}
 footer p{margin-bottom:8px}
-footer ul{margin:0 0 12px 18px}
+footer ul,footer ol{margin:0 0 12px 18px}
 footer li{margin-bottom:4px}
-footer .mono{font-size:12px;background:var(--cream);padding:1px 5px;border:1px solid var(--rule-soft);border-radius:2px}
+footer strong{color:var(--text-soft)}
+footer .mono{font-size:12px;background:var(--panel-2);padding:1px 5px;border:1px solid var(--border);border-radius:2px;color:var(--gold)}
 
-/* Custom Leaflet styling */
-.leaflet-popup-content-wrapper{background:var(--paper);border:1px solid var(--ink);border-radius:2px;box-shadow:0 8px 18px -8px rgba(0,0,0,.3)}
-.leaflet-popup-content{margin:10px 14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;color:var(--ink)}
-.leaflet-popup-content .pop-title{font-family:'Fraunces',serif;font-size:16px;font-weight:500;margin-bottom:6px;color:var(--ink)}
+/* Leaflet popups dark */
+.leaflet-popup-content-wrapper{background:var(--panel-2);border:1px solid var(--gold);border-radius:3px;box-shadow:0 8px 24px -6px rgba(0,0,0,.7)}
+.leaflet-popup-content{margin:10px 14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;color:var(--text)}
+.leaflet-popup-content .pop-title{font-family:'Fraunces',serif;font-size:16px;font-weight:500;margin-bottom:6px;color:var(--text)}
 .leaflet-popup-content .pop-row{display:flex;justify-content:space-between;gap:14px;padding:2px 0;font-size:11px}
-.leaflet-popup-content .pop-row .lbl{color:var(--ink-mute)}
-.leaflet-popup-content .pop-row .val{font-family:'JetBrains Mono',monospace;color:var(--ink)}
+.leaflet-popup-content .pop-row .lbl{color:var(--text-mute)}
+.leaflet-popup-content .pop-row .val{font-family:'JetBrains Mono',monospace;color:var(--text)}
 .leaflet-popup-content .pop-row .val.gap{color:var(--red);font-weight:600}
-.leaflet-popup-content .pop-cta{font-size:10px;color:var(--gold);text-align:center;margin-top:8px;padding-top:6px;border-top:1px solid var(--rule-soft);font-family:'JetBrains Mono',monospace;letter-spacing:.08em;text-transform:uppercase}
-.leaflet-popup-tip{background:var(--paper);border:1px solid var(--ink)}
-
-.leaflet-control-attribution{background:rgba(251,247,238,.85)!important;font-size:9px!important;color:var(--ink-mute)!important}
+.leaflet-popup-content .pop-cta{font-size:10px;color:var(--gold);text-align:center;margin-top:8px;padding-top:6px;border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace;letter-spacing:.08em;text-transform:uppercase}
+.leaflet-popup-tip{background:var(--panel-2);border:1px solid var(--gold)}
+.leaflet-popup-close-button{color:var(--text-mute)!important}
+a.leaflet-popup-close-button:hover{color:var(--text)!important}
+.leaflet-control-attribution{background:rgba(21,23,30,.85)!important;font-size:9px!important;color:var(--text-mute)!important}
 .leaflet-control-attribution a{color:var(--gold)!important}
+.leaflet-bar a{background:var(--panel-2)!important;color:var(--text)!important;border-bottom-color:var(--border)!important}
+.leaflet-bar a:hover{background:var(--elevated)!important}
 
-/* Responsive */
 @media(max-width:680px){
-  header{padding:14px 18px}
-  header h1{font-size:18px}
+  header{padding:14px 16px}
+  header h1{font-size:17px}
   .stats{grid-template-columns:repeat(2,1fr)}
   .stat-val{font-size:18px}
-  .stat-val.big{font-size:22px}
-  aside{padding:16px 18px}
-  .table-section{padding:18px}
+  .stat-val.big{font-size:21px}
+  aside{padding:14px 16px}
+  .table-section,footer{padding:16px}
   table.ranking{font-size:11px}
   table.ranking td{padding:6px 8px}
-  table.ranking th{padding:8px}
-  .map-controls{max-width:200px;padding:10px 12px}
+  .map-controls,.bldg-controls{max-width:160px;padding:9px 11px}
+  .map-status{font-size:10px;padding:7px 10px}
 }
 </style>
 </head>
@@ -221,7 +255,7 @@ footer .mono{font-size:12px;background:var(--cream);padding:1px 5px;border:1px s
     <div class="stat">
       <div class="stat-label">Estimasi Total Bangunan</div>
       <div class="stat-val">955.423</div>
-      <div class="stat-sub">dari 3,72 jt populasi / 3,7 ART × 0,95</div>
+      <div class="stat-sub">3,72 jt pop / 3,7 ART × 0,95</div>
     </div>
     <div class="stat">
       <div class="stat-label">Sudah Punya PBG (2021–26)</div>
@@ -231,52 +265,70 @@ footer .mono{font-size:12px;background:var(--cream);padding:1px 5px;border:1px s
     <div class="stat">
       <div class="stat-label">Estimasi IMB Legacy</div>
       <div class="stat-val">±10.250</div>
-      <div class="stat-sub">ekstrapolasi sampel 1993–2001</div>
+      <div class="stat-sub">ekstrapolasi 1993–2001</div>
     </div>
     <div class="stat">
       <div class="stat-label">Belum Tertangkap Sistem</div>
       <div class="stat-val big">938.464</div>
-      <div class="stat-sub">98,2% bangunan tidak ada catatan</div>
+      <div class="stat-sub">98,2% tanpa catatan</div>
     </div>
     <div class="stat">
-      <div class="stat-label">Potensi Retribusi Tahunan</div>
+      <div class="stat-label">Potensi Retribusi/thn</div>
       <div class="stat-val">Rp 29 M</div>
-      <div class="stat-sub">@ 50% compliance, 5 thn amortisasi</div>
+      <div class="stat-sub">@ 50% compliance</div>
     </div>
   </div>
 </header>
 
-<main>
+<div class="map-section">
   <div id="map-wrap">
     <div id="map"></div>
+
     <div class="map-controls">
       <div class="title">Ukuran Lingkaran</div>
       <div class="toggle-row" id="size-toggle">
-        <button data-mode="gap" class="active">Gap Absolut</button>
+        <button data-mode="gap" class="active">Gap</button>
         <button data-mode="pop">Populasi</button>
       </div>
-      <div class="title" style="margin-top:8px">Warna = Gap %</div>
+      <div class="title" style="margin-top:6px">Warna = Gap %</div>
       <div class="legend">
-        <div class="legend-row"><div class="legend-dot" style="width:14px;height:14px;background:#FFF8E0"></div>&lt; 95%</div>
-        <div class="legend-row"><div class="legend-dot" style="width:14px;height:14px;background:#F4C078"></div>95–97%</div>
-        <div class="legend-row"><div class="legend-dot" style="width:14px;height:14px;background:#D26A4A"></div>97–98,5%</div>
-        <div class="legend-row"><div class="legend-dot" style="width:14px;height:14px;background:#9C2A2A"></div>&gt; 98,5%</div>
+        <div class="legend-row"><div class="legend-dot" style="width:13px;height:13px;background:#E8C56A"></div>&lt; 95%</div>
+        <div class="legend-row"><div class="legend-dot" style="width:13px;height:13px;background:#E89B43"></div>95–97%</div>
+        <div class="legend-row"><div class="legend-dot" style="width:13px;height:13px;background:#D55C35"></div>97–98,5%</div>
+        <div class="legend-row"><div class="legend-dot" style="width:13px;height:13px;background:#C0392B"></div>&gt; 98,5%</div>
       </div>
+    </div>
+
+    <div class="bldg-controls">
+      <div class="title">Mode Bangunan</div>
+      <label><input type="checkbox" id="bldg-toggle"> Tampilkan bangunan</label>
+      <label style="margin-top:6px"><input type="checkbox" id="sim-toggle"> Pratinjau status (simulasi)</label>
+      <div class="sim-warn" id="sim-warn">⚠ SIMULASI ACAK — bukan data riil. Hanya ilustrasi tampilan akhir setelah geocoding.</div>
+      <div class="bldg-legend" id="bldg-legend">
+        <div class="lr"><div class="sw" style="background:#5FA35F"></div>Ada PBG (simulasi)</div>
+        <div class="lr"><div class="sw" style="background:#C0392B"></div>Tidak ada PBG (simulasi)</div>
+        <div class="lr"><div class="sw" style="background:#8A8578"></div>Belum diverifikasi</div>
+      </div>
+    </div>
+
+    <div class="map-status" id="map-status">
+      <div class="dot" id="status-dot"></div>
+      <span id="status-text">Tampilan kabupaten — klik kecamatan untuk detail. Zoom in untuk lihat bangunan.</span>
     </div>
   </div>
 
   <aside id="detail-panel">
     <div class="placeholder" id="placeholder">
       <div class="arrow">↖</div>
-      <p style="font-size:14px;color:var(--ink-soft);margin-bottom:8px">Klik salah satu lingkaran di peta atau baris di tabel di bawah</p>
-      <p>untuk melihat detail per kecamatan: estimasi bangunan, jumlah PBG terdaftar, dan sampel alamat bangunan yang sudah ber-PBG.</p>
+      <p style="font-size:14px;color:var(--text-soft);margin-bottom:8px">Klik lingkaran di peta atau baris di tabel</p>
+      <p>untuk melihat detail per kecamatan: estimasi bangunan, PBG terdaftar, dan sampel alamat yang sudah ber-PBG.</p>
     </div>
   </aside>
-</main>
+</div>
 
 <section class="table-section">
   <h2>Ranking Gap per Kecamatan</h2>
-  <p class="lede">31 kecamatan, diurutkan dari gap absolut terbesar. Klik header kolom untuk sort. Klik baris untuk fokus di peta.</p>
+  <p class="lede">31 kecamatan, diurutkan dari gap absolut terbesar. Klik header untuk sort, klik baris untuk fokus di peta.</p>
   <div style="overflow-x:auto">
     <table class="ranking" id="ranking">
       <thead>
@@ -289,7 +341,7 @@ footer .mono{font-size:12px;background:var(--cream);padding:1px 5px;border:1px s
           <th class="num" data-key="n_imb_estimate">IMB est. <span class="arrow"></span></th>
           <th class="num" data-key="gap">Gap <span class="arrow">↓</span></th>
           <th class="num" data-key="gap_pct">Gap %</th>
-          <th class="num" data-key="pot_revenue_annual">Pot/thn (Rp)</th>
+          <th class="num" data-key="pot_revenue_annual">Pot/thn</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -299,35 +351,30 @@ footer .mono{font-size:12px;background:var(--cream);padding:1px 5px;border:1px s
 
 <footer>
   <div class="container">
-    <h3>Tentang data ini — dan apa langkah selanjutnya</h3>
+    <h3>Tentang data ini — dan langkah menuju peta per-bangunan</h3>
+
+    <h4>Cara Pakai Mode Bangunan</h4>
+    <p>Centang <strong>"Tampilkan bangunan"</strong> lalu zoom ke level jalan (zoom 16+). Setiap bangunan riil dari OpenStreetMap akan muncul sebagai polygon yang bisa diklik. Saat ini semua berstatus <strong>"belum diverifikasi"</strong> (abu-abu) karena geocoding PBG belum tersedia.</p>
+    <p>Centang <strong>"Pratinjau status (simulasi)"</strong> untuk melihat tampilan akhir: hijau = ada PBG, merah = tidak ada PBG. <strong style="color:var(--red)">Catatan: warna pratinjau ini acak/simulasi, BUKAN data riil</strong> — hanya untuk menggambarkan hasil akhir setelah geocoding 6.713 alamat PBG selesai.</p>
+
+    <h4>Setelah Geocoding Tiba</h4>
+    <p>Ketika Pemkab Bandung memberikan koordinat lat/lon untuk 6.713 alamat PBG, tinggal lakukan <em>spatial join</em>: untuk setiap building footprint OSM, cek apakah ada titik PBG dalam radius 30–50m. Yang ada → hijau (terdaftar). Yang tidak ada → merah (kandidat tanpa PBG, prioritas verifikasi lapangan). Peta ini akan langsung menampilkan status riil per bangunan tanpa perubahan kode struktural.</p>
 
     <h4>Sumber Data</h4>
     <ul>
-      <li><strong>PBG terdaftar 2021–2026:</strong> SIMBG Kabupaten Bandung (6.713 berkas) — alamat di-parsing untuk ekstrak kecamatan</li>
-      <li><strong>IMB legacy 1993–2001:</strong> Arsip Dinas PUTR/DPMPTSP Kab Bandung — 6 tahun sampel dari 28 tahun era IMB (1993–2020)</li>
-      <li><strong>Populasi & luas per kecamatan:</strong> BPS Kabupaten Bandung Dalam Angka 2024 (proyeksi penduduk 2023)</li>
-      <li><strong>Pelanggan PDAM:</strong> Perumda Tirta Raharja (92.125 pelanggan, 28 kecamatan)</li>
-      <li><strong>WP Bapenda:</strong> Bapenda Kabupaten Bandung (1.058 WP hotel/restoran/hiburan/reklame)</li>
+      <li><strong>PBG terdaftar 2021–2026:</strong> SIMBG Kabupaten Bandung (6.713 berkas), alamat di-parsing per kecamatan</li>
+      <li><strong>IMB legacy 1993–2001:</strong> Arsip Dinas PUTR/DPMPTSP (sampel 6 tahun dari era IMB 1993–2020)</li>
+      <li><strong>Populasi & luas:</strong> BPS Kabupaten Bandung Dalam Angka 2024 (proyeksi 2023)</li>
+      <li><strong>Building footprints:</strong> OpenStreetMap via Overpass API (live, di-fetch saat zoom in)</li>
+      <li><strong>PDAM:</strong> Perumda Tirta Raharja · <strong>WP Bapenda:</strong> 1.058 entitas usaha</li>
     </ul>
 
     <h4>Asumsi Estimasi</h4>
     <ul>
-      <li>Estimasi bangunan hunian = populasi ÷ 3,7 (anggota/KK) × 0,95 (faktor bangunan/KK). Skenario moderat.</li>
-      <li>IMB legacy total dihitung dari sampel 6 tahun × 4,7 (untuk 28 tahun 1993–2020). Ini estimasi kasar — angka sebenarnya harus diaudit dari arsip lengkap.</li>
-      <li>Potensi retribusi = gap × 94% hunian × 40% non-bebas × 50% compliance × Rp 821.479 median (PBG hunian). Dibagi 5 tahun amortisasi.</li>
+      <li>Bangunan hunian = populasi ÷ 3,7 × 0,95 (skenario moderat)</li>
+      <li>IMB legacy = sampel 6 tahun × 4,7 untuk 28 tahun (1993–2020) — perlu audit arsip lengkap</li>
+      <li>Potensi retribusi = gap × 94% hunian × 40% non-bebas × 50% compliance × Rp 821.479 ÷ 5 tahun</li>
     </ul>
-
-    <h4>Yang Belum Bisa Ditunjukkan (Butuh Langkah Lanjutan)</h4>
-    <p>Dashboard ini menunjukkan gap <strong>per kecamatan</strong>. Untuk pinpoint <em>per-bangunan individual</em> ("rumah ini di sini belum punya PBG"), perlu tiga langkah tambahan:</p>
-    <ol>
-      <li><strong>Geocoding alamat PBG.</strong> Konversi 6.713 alamat string ke koordinat lat/lon. Bisa pakai Google Geocoding API (±Rp 5 jt/sekali jalan) atau Nominatim OSM (gratis tapi lambat & akurasi lebih rendah).</li>
-      <li><strong>Download Google Open Buildings polygon Kab Bandung.</strong> Data gratis di <span class="mono">sites.research.google/open-buildings/</span> — setiap polygon = satu footprint bangunan dengan koordinat. Untuk Kab Bandung ada ±1,2 juta polygon bangunan.</li>
-      <li><strong>Spatial join.</strong> Untuk setiap building footprint, cek apakah ada PBG dalam radius 50m. Yang tidak ada = "kandidat bangunan tanpa PBG". Hasilnya bisa di-overlay di peta sebagai titik merah individual.</li>
-    </ol>
-    <p>Pemrosesan ini layak dikerjakan dengan tim GIS internal (Dinas PUTR atau Bappeda). Estimasi waktu: 2–3 minggu, hasil: setiap kecamatan punya daftar konkret bangunan-bangunan untuk verifikasi lapangan oleh petugas.</p>
-
-    <h4>Yang Bisa Dilakukan Sekarang Tanpa GIS</h4>
-    <p><strong>Cross-match alamat PBG ke PBB-P2:</strong> Bapenda punya daftar Objek Pajak PBB-P2 dengan alamat. Match dengan SIMBG PBG — yang ada SPPT PBB tapi tidak ada PBG = target prioritas. Bisa dilakukan dengan VLOOKUP Excel atau script Python sederhana, tidak butuh peta sama sekali.</p>
 
     <p style="margin-top:24px;font-style:italic;color:var(--gold);text-align:center;font-family:'Fraunces',serif;font-size:16px">— Mas Alif Towew · #SemuaBisaDihitung</p>
   </div>
@@ -336,7 +383,6 @@ footer .mono{font-size:12px;background:var(--cream);padding:1px 5px;border:1px s
 <script>
 const KEC_DATA = [{"kec": "BALEENDAH", "lat": -6.989, "lon": 107.628, "pop": 274244, "luas": 41.56, "kepadatan": 6599, "n_rt": 74120, "n_bgn_estimate": 70414, "n_pbg": 348, "n_pbg_hunian": 185, "n_pbg_usaha": 111, "n_pbg_sosbud": 36, "retribusi": 3062849620, "n_imb_sample": 142, "n_imb_estimate": 667, "n_pdam": 8192, "n_bapenda": 49, "n_terdaftar": 1015, "gap": 69399, "gap_pct": 0.986, "pot_revenue_annual": 2143569274, "samples": [{"nama": "SUSANTO a.n CV. WESTON TEXTILE", "alamat": "Baleendah, Manggahang, Jl. Mekarsari RT 005 RW 012 Desa Manggahang Kec. Baleenda", "fungsi": "Fungsi Usaha", "luas": 9227, "retribusi": 362166506}, {"nama": "SUSANTO a.n CV. WESTON TEXTILE", "alamat": "Baleendah, Manggahang, Jl. Mekarsari RT 005 RW 012 Desa Manggahang Kec. Baleenda", "fungsi": "Fungsi Usaha", "luas": 9227, "retribusi": 362166506}, {"nama": "IWAN KOMARA/PT KRAMAT JAYA CIPTA PERDANA", "alamat": "Baleendah, Bojongmalaka, Bojongmalaka", "fungsi": "Fungsi Hunian", "luas": 800, "retribusi": 119361182}, {"nama": "IWAN KOMARA/PT KRAMAT JAYA CIPTA PERDANA", "alamat": "Baleendah, Bojongmalaka, Bojongmalaka", "fungsi": "Fungsi Hunian", "luas": 800, "retribusi": 119361182}, {"nama": "Hendra / PT Pasific Karya Abadi", "alamat": "Baleendah, Manggahang, Jalan Raya Laswi RT. 004 RW. 002", "fungsi": "Sebagai Tempat Usaha", "luas": 2344, "retribusi": 92712520}]}, {"kec": "CILEUNYI", "lat": -6.937, "lon": 107.745, "pop": 192693, "luas": 31.58, "kepadatan": 6102, "n_rt": 52079, "n_bgn_estimate": 49475, "n_pbg": 735, "n_pbg_hunian": 516, "n_pbg_usaha": 154, "n_pbg_sosbud": 32, "retribusi": 2268796728, "n_imb_sample": 136, "n_imb_estimate": 639, "n_pdam": 2215, "n_bapenda": 59, "n_terdaftar": 1374, "gap": 48101, "gap_pct": 0.972, "pot_revenue_annual": 1485724948, "samples": [{"nama": "HSIAO PO YI an PT. HUA YII INDONESIA", "alamat": "Cileunyi, Cileunyi Wetan, Jl. Panyawungan, Desa Cileunyi Wetan, Kec. Cileunyi, K", "fungsi": "Fungsi Usaha", "luas": 6516, "retribusi": 262352654}, {"nama": "HSIAO PO YI an PT. HUA YII INDONESIA", "alamat": "Cileunyi, Cileunyi Wetan, Jl. Panyawungan, Desa Cileunyi Wetan, Kec. Cileunyi, K", "fungsi": "Fungsi Usaha", "luas": 6516, "retribusi": 262352654}, {"nama": "PT Bank Pembiayaan Rakyat  Syariah Harta", "alamat": "Cileunyi, Cileunyi Kulon, Jl Raya Percobaan No 38B,RT003 RW 025", "fungsi": "Fungsi Sosial Budaya", "luas": 331, "retribusi": 50420461}, {"nama": "PT Bank Pembiayaan Rakyat  Syariah Harta", "alamat": "Cileunyi, Cileunyi Kulon, Jl Raya Percobaan No 38B,RT003 RW 025", "fungsi": "Fungsi Sosial Budaya", "luas": 331, "retribusi": 50420461}, {"nama": "Julius Widjaja / PT. Papan Indah Sejahte", "alamat": "Cileunyi, Cileunyi Kulon, Jl. Tanjakan Muncang", "fungsi": "Sebagai Tempat Tinggal", "luas": 500, "retribusi": 40975988}]}, {"kec": "RANCAEKEK", "lat": -6.965, "lon": 107.77, "pop": 189653, "luas": 45.25, "kepadatan": 4191, "n_rt": 51258, "n_bgn_estimate": 48695, "n_pbg": 379, "n_pbg_hunian": 252, "n_pbg_usaha": 70, "n_pbg_sosbud": 35, "retribusi": 4806801856, "n_imb_sample": 78, "n_imb_estimate": 366, "n_pdam": 6197, "n_bapenda": 40, "n_terdaftar": 745, "gap": 47950, "gap_pct": 0.985, "pot_revenue_annual": 1481060919, "samples": [{"nama": "PARULIAN DEBBY AN.PT. BETHSEDA HOSPITAL ", "alamat": "Rancaekek, Bojongloa, JL.RAYA BANDUNG - GARUT KM.20", "fungsi": "Sebagai Tempat Multifungsi", "luas": 40306, "retribusi": 1604061518}, {"nama": "Nikke Verani an PT Rama Putera Berjaya", "alamat": "Rancaekek, Cangkuang, Jl. Raya Rancaekek KM 25,4", "fungsi": "Sebagai Tempat Usaha", "luas": 14204, "retribusi": 568159432}, {"nama": "PT. Stanli Trijaya Mandiri", "alamat": "Rancaekek, Cangkuang, Jl. Raya Rancaekek KM 25 RT.03 RW. 09 Desa Cangkuang Kec. ", "fungsi": "Sebagai Tempat Usaha", "luas": 13716, "retribusi": 531970814}, {"nama": "FREDDY GUNAWAN", "alamat": "Rancaekek, Nanjung Mekar, Kp.Tarikolot, RT.003 / RW.001", "fungsi": "Sebagai Tempat Usaha", "luas": 9942, "retribusi": 397857092}, {"nama": "PT. MEKAR LOJICIPTA", "alamat": "Rancaekek, Cangkuang, BLOK SUSUKAN GEDE", "fungsi": "Fungsi Hunian", "luas": 340, "retribusi": 76594249}]}, {"kec": "CIPARAY", "lat": -7.075, "lon": 107.7, "pop": 177677, "luas": 46.18, "kepadatan": 3847, "n_rt": 48021, "n_bgn_estimate": 45620, "n_pbg": 162, "n_pbg_hunian": 64, "n_pbg_usaha": 71, "n_pbg_sosbud": 15, "retribusi": 965707905, "n_imb_sample": 64, "n_imb_estimate": 300, "n_pdam": 8312, "n_bapenda": 17, "n_terdaftar": 462, "gap": 45158, "gap_pct": 0.99, "pot_revenue_annual": 1394822710, "samples": [{"nama": "Persekutuan dan Perkumpulan Persyarikata", "alamat": "Ciparay, Ciheulang, Jalan Raya Laswi RT.002/012 ", "fungsi": "Sebagai Tempat Sosial Budaya", "luas": 5003, "retribusi": 70194470}, {"nama": "TRIADY LUKMAN  AN PT CIPTA AGUNG SENTOSA", "alamat": "Ciparay, Ciheulang, Jalan Ciheulang  ", "fungsi": "Sebagai Tempat Tinggal", "luas": 1010, "retribusi": 38141705}, {"nama": "JULIUS GUNAWAN an. PT. PRAKARSA FAJAR PR", "alamat": "Ciparay, Cikoneng, JL. RAYA PACET KM 5", "fungsi": "Fungsi Hunian", "luas": 420, "retribusi": 35022247}, {"nama": "JULIUS GUNAWAN an. PT. PRAKARSA FAJAR PR", "alamat": "Ciparay, Cikoneng, JL. RAYA PACET KM 5", "fungsi": "Fungsi Hunian", "luas": 420, "retribusi": 35022247}, {"nama": "DADANG FARID", "alamat": "Ciparay, Pakutandang, JALAN RAYA CIPARAY PACET", "fungsi": "Fungsi Usaha (UMKM)", "luas": 1412, "retribusi": 32204468}]}, {"kec": "MAJALAYA", "lat": -7.043, "lon": 107.77, "pop": 161696, "luas": 25.36, "kepadatan": 6376, "n_rt": 43702, "n_bgn_estimate": 41517, "n_pbg": 121, "n_pbg_hunian": 19, "n_pbg_usaha": 73, "n_pbg_sosbud": 16, "retribusi": 1737694093, "n_imb_sample": 141, "n_imb_estimate": 662, "n_pdam": 4196, "n_bapenda": 69, "n_terdaftar": 783, "gap": 40734, "gap_pct": 0.981, "pot_revenue_annual": 1258175922, "samples": [{"nama": "UCIU WISESA / CV DULANG MAS", "alamat": "Majalaya, Sukamaju, Jl Leuwidulang no 38", "fungsi": "Sebagai Tempat Usaha", "luas": 3172, "retribusi": 124398155}, {"nama": "UCIU WISESA / CV DULANG MAS", "alamat": "Majalaya, Sukamaju, Jl Leuwidulang no 38", "fungsi": "Sebagai Tempat Usaha", "luas": 3172, "retribusi": 124398155}, {"nama": "LINDA INDRIYANI / PT.KOMODO TEXTILE MILL", "alamat": "Majalaya, Biru, Jalan Raya Laswi No. 2 RT.03/15", "fungsi": "Sebagai Tempat Usaha", "luas": 7666, "retribusi": 98656594}, {"nama": "Ivan Januar Johan / PT Angkrek Mas Texti", "alamat": "Majalaya, Majasetra, Jl. Raya Rancaekek - Majalaya No. 240 KM. 2,8 Kp. Maniranca", "fungsi": "Sebagai Tempat Usaha", "luas": 288, "retribusi": 90281520}, {"nama": "RAMLAN GINTING  AN PT RIAN INDAH MANDIRI", "alamat": "Majalaya, Majalaya, Jalan Raya Laswi No. 272 ", "fungsi": "Sebagai Tempat Usaha", "luas": 3823, "retribusi": 89371265}]}, {"kec": "PANGALENGAN", "lat": -7.179, "lon": 107.567, "pop": 157296, "luas": 195.41, "kepadatan": 805, "n_rt": 42512, "n_bgn_estimate": 40386, "n_pbg": 92, "n_pbg_hunian": 11, "n_pbg_usaha": 53, "n_pbg_sosbud": 8, "retribusi": 764199053, "n_imb_sample": 80, "n_imb_estimate": 376, "n_pdam": 3539, "n_bapenda": 67, "n_terdaftar": 468, "gap": 39918, "gap_pct": 0.988, "pot_revenue_annual": 1232971632, "samples": [{"nama": "STAR ENERGY GEOTHERMAL (WAYANG WINDU) LI", "alamat": "Pangalengan, Margamukti, Perkebunan Kertamanah", "fungsi": "Fungsi Usaha", "luas": 2104, "retribusi": 77695314}, {"nama": "STAR ENERGY GEOTHERMAL (WAYANG WINDU) LI", "alamat": "Pangalengan, Margamukti, Perkebunan Kertamanah", "fungsi": "Fungsi Usaha", "luas": 2104, "retribusi": 77695314}, {"nama": "STAR ENERGY GEOTHERMAL LTD", "alamat": "Pangalengan, Margamukti, PERKEBUNAN KERTAMANAH", "fungsi": "Sebagai Tempat Usaha", "luas": 3835, "retribusi": 47874635}, {"nama": "STAR ENERGY GEOTHERMAL LTD", "alamat": "Pangalengan, Margamukti, PERKEBUNAN KERTAMANAH", "fungsi": "Sebagai Tempat Usaha", "luas": 8490, "retribusi": 34463827}, {"nama": "Aun Gunawan, SE", "alamat": "Pangalengan, Margamukti, Jl. Raya Pintu Pangalengan No. 563", "fungsi": "Fungsi Usaha (UMKM)", "luas": 1365, "retribusi": 31178184}]}, {"kec": "MARGAASIH", "lat": -6.977, "lon": 107.555, "pop": 151722, "luas": 18.35, "kepadatan": 8268, "n_rt": 41006, "n_bgn_estimate": 38956, "n_pbg": 314, "n_pbg_hunian": 174, "n_pbg_usaha": 114, "n_pbg_sosbud": 15, "retribusi": 3221274762, "n_imb_sample": 148, "n_imb_estimate": 695, "n_pdam": 1904, "n_bapenda": 54, "n_terdaftar": 1009, "gap": 37947, "gap_pct": 0.974, "pot_revenue_annual": 1172092152, "samples": [{"nama": "Widjaja Trisna", "alamat": "Margaasih, Margaasih, Kp.\tRanca\tMalang,\tKel.\tMargaasih,\tKec.\tMargaasih,\n Kab.\tBa", "fungsi": "Fungsi Usaha (UMKM)", "luas": 968, "retribusi": 223666942}, {"nama": "Widjaja Trisna", "alamat": "Margaasih, Margaasih, Kp.\tRanca\tMalang,\tKel.\tMargaasih,\tKec.\tMargaasih,\n Kab.\tBa", "fungsi": "Fungsi Usaha (UMKM)", "luas": 968, "retribusi": 223666942}, {"nama": "HJ. JEJE JAENUDIN S.Sos, M.Ag", "alamat": "Margaasih, Margaasih, Jl. Rancamalang, Desa/Kel. Margaasih Kec. Margaasih Kab. B", "fungsi": "Fungsi Sosial Budaya", "luas": 17776, "retribusi": 208155963}, {"nama": "HJ. JEJE JAENUDIN S.Sos, M.Ag", "alamat": "Margaasih, Margaasih, Jl. Rancamalang, Desa/Kel. Margaasih Kec. Margaasih Kab. B", "fungsi": "Fungsi Sosial Budaya", "luas": 17776, "retribusi": 208155963}, {"nama": "GEORGE JOHANES BUDIJANTO an. PT. ANUGERA", "alamat": "Margaasih, Rahayu, Blok Got, Jl. Mahmud, RT 003 RW 003", "fungsi": "Sebagai Tempat Usaha", "luas": 276, "retribusi": 109235436}]}, {"kec": "PASEH", "lat": -7.044, "lon": 107.752, "pop": 140119, "luas": 51.03, "kepadatan": 2746, "n_rt": 37870, "n_bgn_estimate": 35976, "n_pbg": 54, "n_pbg_hunian": 26, "n_pbg_usaha": 19, "n_pbg_sosbud": 5, "retribusi": 596252720, "n_imb_sample": 29, "n_imb_estimate": 136, "n_pdam": 1807, "n_bapenda": 15, "n_terdaftar": 190, "gap": 35786, "gap_pct": 0.995, "pot_revenue_annual": 1105344026, "samples": [{"nama": "WARSIDI/ PERUMAHAN NASIONAL (PERUMNAS)", "alamat": "Paseh, Cipedes, Jl. Raya Cicalengka - Majalaya Komplek Perum\nPerumnas, Kel/Desa\n", "fungsi": "Sebagai Tempat Tinggal", "luas": 280, "retribusi": 83359937}, {"nama": "WARSIDI/ PERUMAHAN NASIONAL (PERUMNAS)", "alamat": "Paseh, Cipedes, Jl. Raya Cicalengka - Majalaya Komplek Perum Perumnas RT.001,002", "fungsi": "Sebagai Tempat Tinggal", "luas": 280, "retribusi": 78432071}, {"nama": "H. M NURHIMAT", "alamat": "Paseh, Loa, JL. CIPAKU RT.001 RW.001", "fungsi": "Fungsi Usaha (UMKM)", "luas": 1843, "retribusi": 47433541}, {"nama": "H. M NURHIMAT", "alamat": "Paseh, Loa, JL. CIPAKU RT.001 RW.001", "fungsi": "Fungsi Usaha (UMKM)", "luas": 1843, "retribusi": 47433541}, {"nama": "WARSIDI / PERUMNAS", "alamat": "Paseh, Cipedes, Jl. Raya Cicalengka - Majalaya Komplek Perum Perumnas Samesta Pa", "fungsi": "Sebagai Tempat Tinggal", "luas": 300, "retribusi": 31758804}]}, {"kec": "BANJARAN", "lat": -7.044, "lon": 107.591, "pop": 136524, "luas": 42.92, "kepadatan": 3181, "n_rt": 36898, "n_bgn_estimate": 35053, "n_pbg": 230, "n_pbg_hunian": 102, "n_pbg_usaha": 89, "n_pbg_sosbud": 20, "retribusi": 1717919143, "n_imb_sample": 128, "n_imb_estimate": 601, "n_pdam": 4912, "n_bapenda": 23, "n_terdaftar": 831, "gap": 34222, "gap_pct": 0.976, "pot_revenue_annual": 1057035803, "samples": [{"nama": "JEMMY KARTIWA /PT. DHANAR MAS CONCERN ( ", "alamat": "Banjaran, Tarajusari, Jl. Tarajusari Kp. Cipeundeuy No. 8A, Desa Tarajusari, Kec", "fungsi": "Sebagai Tempat Usaha", "luas": 27405, "retribusi": 859085089}, {"nama": "HADIANA  (A.n. PT. KREASI PRIMA NUSANTAR", "alamat": "Banjaran, Kiangroke, Jalan Pahlawan", "fungsi": "Sebagai Tempat Tinggal", "luas": 300, "retribusi": 56375676}, {"nama": "DAVID SURYA SASTRAATMADJA", "alamat": "Banjaran, Tarajusari, Jalan Cipeundeuy", "fungsi": "Sebagai Tempat Usaha", "luas": 2184, "retribusi": 48902490}, {"nama": "Toto Winata / PT Damar Gayatri Jaya", "alamat": "Banjaran, Mekarjaya, Kp. Empel RT. 003 RW. 004", "fungsi": "Sebagai Tempat Usaha", "luas": 169, "retribusi": 37851065}, {"nama": "David Surya Satraatmaja / PT Surya Usaha", "alamat": "Banjaran, Tarajusari, Jalan Tarajusari No 8 kp Cipeundeuy Rt 01/07 ", "fungsi": "Sebagai Tempat Usaha", "luas": 1152, "retribusi": 25318656}]}, {"kec": "KATAPANG", "lat": -7.005, "lon": 107.567, "pop": 136164, "luas": 15.72, "kepadatan": 8662, "n_rt": 36801, "n_bgn_estimate": 34961, "n_pbg": 412, "n_pbg_hunian": 249, "n_pbg_usaha": 133, "n_pbg_sosbud": 9, "retribusi": 5306406688, "n_imb_sample": 104, "n_imb_estimate": 488, "n_pdam": 7805, "n_bapenda": 41, "n_terdaftar": 900, "gap": 34061, "gap_pct": 0.974, "pot_revenue_annual": 1052062898, "samples": [{"nama": "Julius Gunawan an. PT. Agung Prakarsa Pr", "alamat": "Katapang, Katapang, Blok Pamoyanan, Waru, Pelabuan, Situ, Pasung dan Situburung,", "fungsi": "Sebagai Tempat Usaha", "luas": 12888, "retribusi": 495691812}, {"nama": "HARIS DARMA  AN PT KARYA SUKSES SEJAHTER", "alamat": "Katapang, Cilampeni, KP Lebak Muncang RT. 005 RW. 018", "fungsi": "Sebagai Tempat Usaha", "luas": 8112, "retribusi": 261802581}, {"nama": "JOJO KRISNAWAN", "alamat": "Katapang, Pangauban, JL. ANDIR-KATAPANG, BLOK SAYANGKAAK", "fungsi": "Fungsi Usaha (UMKM)", "luas": 9882, "retribusi": 257436610}, {"nama": "JOJO KRISNAWAN", "alamat": "Katapang, Pangauban, JL. ANDIR-KATAPANG, BLOK SAYANGKAAK", "fungsi": "Fungsi Usaha (UMKM)", "luas": 9882, "retribusi": 257436610}, {"nama": "JO ANDREW SAPUTRA (PT BATTLEXS ANUGERAH ", "alamat": "Katapang, Sangkanhurip, Jl Sukamaju Cibolerang\nNo. 308 RT 002 RW 020, Desa Sangk", "fungsi": "Sebagai Tempat Usaha", "luas": 5157, "retribusi": 209358643}]}, {"kec": "CICALENGKA", "lat": -6.974, "lon": 107.834, "pop": 125022, "luas": 35.99, "kepadatan": 3474, "n_rt": 33790, "n_bgn_estimate": 32100, "n_pbg": 147, "n_pbg_hunian": 67, "n_pbg_usaha": 47, "n_pbg_sosbud": 15, "retribusi": 5166148179, "n_imb_sample": 62, "n_imb_estimate": 291, "n_pdam": 45, "n_bapenda": 31, "n_terdaftar": 438, "gap": 31662, "gap_pct": 0.986, "pot_revenue_annual": 977963520, "samples": [{"nama": "TIRTA FRESINDO JAYA", "alamat": "Cicalengka, Tenjolaya, JL. RAYA RANCAEKEK KM,29 DESA TENJOLAYA KECAMATAN CICALEN", "fungsi": "Fungsi Usaha", "luas": 20667, "retribusi": 864369759}, {"nama": "TIRTA FRESINDO JAYA", "alamat": "Cicalengka, Tenjolaya, JL. RAYA RANCAEKEK KM,29 DESA TENJOLAYA KECAMATAN CICALEN", "fungsi": "Fungsi Usaha", "luas": 20667, "retribusi": 864369759}, {"nama": "Woko Wahtoto an.PT. Tirta Fresindo Jaya", "alamat": "Cicalengka, Tenjolaya, Jl. Raya Rancaekek Km. 29 No. 145 Rt. 05 Rw. 01", "fungsi": "Fungsi Usaha", "luas": 5034, "retribusi": 623070487}, {"nama": "Woko Wahtoto an.PT. Tirta Fresindo Jaya", "alamat": "Cicalengka, Tenjolaya, Jl. Raya Rancaekek Km. 29 No. 145 Rt. 05 Rw. 01", "fungsi": "Fungsi Usaha", "luas": 5034, "retribusi": 623070487}, {"nama": "WOKO WAHTOTO a.n. PT. TIRTA FRESINDO JAY", "alamat": "Cicalengka, Tenjolaya, Jl. Raya Rancaekek KM.29 No.145, RT.005 RW.001, Desa/Kel.", "fungsi": "Sebagai Tempat Usaha", "luas": 34173, "retribusi": 363739253}]}, {"kec": "PACET", "lat": -7.123, "lon": 107.731, "pop": 118278, "luas": 91.94, "kepadatan": 1286, "n_rt": 31967, "n_bgn_estimate": 30369, "n_pbg": 40, "n_pbg_hunian": 10, "n_pbg_usaha": 15, "n_pbg_sosbud": 2, "retribusi": 778145504, "n_imb_sample": 14, "n_imb_estimate": 65, "n_pdam": 37, "n_bapenda": 4, "n_terdaftar": 105, "gap": 30264, "gap_pct": 0.997, "pot_revenue_annual": 934782641, "samples": [{"nama": "PARLINDUNGAN  SIAHAAN U/PT.MULTI SARANA ", "alamat": "Pacet, Cikawao, KP.KIARA PAYUNG RT.001 RW.008", "fungsi": "Sebagai Tempat Usaha", "luas": 5121, "retribusi": 165264884}, {"nama": "PARLINDUNGAN  SIAHAAN U/PT.MULTI SARANA ", "alamat": "Pacet, Mekarjaya, KP.PUNCAK RT.003 RW.001", "fungsi": "Sebagai Tempat Usaha", "luas": 6177, "retribusi": 160804093}, {"nama": "PARLINDUNGAN  SIAHAAN U/PT.MULTI SARANA ", "alamat": "Pacet, Nagrak, JL.NAGRAK RT.001 RW.008", "fungsi": "Sebagai Tempat Usaha", "luas": 3137, "retribusi": 81656864}, {"nama": "In In Aldianti ", "alamat": "Pacet, Nagrak, Kp Gunung Manik  Rt04 rw 08", "fungsi": "Sebagai Tempat Usaha", "luas": 1526, "retribusi": 47836666}, {"nama": "Michael Raphael / PT Banda Properti Grup", "alamat": "Pacet, Cipeujeuh, Jl. Raya Majalaya - Pacet Blok Pasir Astana", "fungsi": "Sebagai Tempat Tinggal", "luas": 300, "retribusi": 46108062}]}, {"kec": "SOREANG", "lat": -7.025, "lon": 107.523, "pop": 119422, "luas": 25.51, "kepadatan": 4681, "n_rt": 32276, "n_bgn_estimate": 30662, "n_pbg": 343, "n_pbg_hunian": 157, "n_pbg_usaha": 142, "n_pbg_sosbud": 19, "retribusi": 7340955067, "n_imb_sample": 99, "n_imb_estimate": 465, "n_pdam": 7598, "n_bapenda": 112, "n_terdaftar": 808, "gap": 29854, "gap_pct": 0.974, "pot_revenue_annual": 922118721, "samples": [{"nama": "PT SINAR HUTOMO PRATAMA", "alamat": "Soreang, Cingcin, JALAN RAYA GADING TUTUKA NO.8", "fungsi": "Fungsi Usaha;Fungsi Usaha (UMK", "luas": 27249, "retribusi": 1688089393}, {"nama": "PT SINAR HUTOMO PRATAMA", "alamat": "Soreang, Cingcin, JALAN RAYA GADING TUTUKA NO.8", "fungsi": "Fungsi Usaha;Fungsi Usaha (UMK", "luas": 27249, "retribusi": 1688089393}, {"nama": "Yogie Basuki (A.n. PT. AKUR PRATAMA)", "alamat": "Soreang, Cingcin, Jalan Raya Lingkar Gading Tutuka", "fungsi": "Sebagai Tempat Usaha", "luas": 10454, "retribusi": 423903532}, {"nama": "ADI DHARMA HARJADI / PT ISTANA BANDUNG R", "alamat": "Soreang, Soreang, JL Terusan Al Fathu, Blok Pendeuy RT 003 RW 021 Desa Soreang K", "fungsi": "Sebagai Tempat Usaha", "luas": 6443, "retribusi": 148506026}, {"nama": "Drs. Jap Paulus Jahja", "alamat": "Soreang, Cingcin, Jl. Raya Gading Tutuka", "fungsi": "Sebagai Tempat Usaha", "luas": 641, "retribusi": 147746362}]}, {"kec": "CIMENYAN", "lat": -6.872, "lon": 107.674, "pop": 116789, "luas": 53.08, "kepadatan": 2200, "n_rt": 31565, "n_bgn_estimate": 29987, "n_pbg": 636, "n_pbg_hunian": 526, "n_pbg_usaha": 65, "n_pbg_sosbud": 27, "retribusi": 4181005104, "n_imb_sample": 113, "n_imb_estimate": 531, "n_pdam": 0, "n_bapenda": 106, "n_terdaftar": 1167, "gap": 28820, "gap_pct": 0.961, "pot_revenue_annual": 890180932, "samples": [{"nama": "TRIFUTANTO WIDJAYA / PT PESONA JATI MAND", "alamat": "Cimenyan, Padasuka, JALAN PASIR LUHUR", "fungsi": "Fungsi Hunian", "luas": 580, "retribusi": 191761682}, {"nama": "TRIFUTANTO WIDJAYA / PT PESONA JATI MAND", "alamat": "Cimenyan, Padasuka, JALAN PASIR LUHUR", "fungsi": "Fungsi Hunian", "luas": 580, "retribusi": 191761682}, {"nama": "Hirman Rahayu Rivano / CV 3 Detik", "alamat": "Cimenyan, Ciburial, Kp. Sekepicung RT. 002 RW. 005", "fungsi": "Sebagai Tempat Usaha", "luas": 6249, "retribusi": 149076002}, {"nama": "SAMUEL TEGUH TARIGAN an. CV TEGUH PRIHAR", "alamat": "Cimenyan, Cibeunying, JL. AWILIGAR RAYA RT 003 RW 024", "fungsi": "Fungsi Hunian", "luas": 690, "retribusi": 105588312}, {"nama": "SAMUEL TEGUH TARIGAN an. CV TEGUH PRIHAR", "alamat": "Cimenyan, Cibeunying, JL. AWILIGAR RAYA RT 003 RW 024", "fungsi": "Fungsi Hunian", "luas": 690, "retribusi": 105588312}]}, {"kec": "MARGAHAYU", "lat": -6.967, "lon": 107.586, "pop": 120638, "luas": 10.54, "kepadatan": 11446, "n_rt": 32605, "n_bgn_estimate": 30975, "n_pbg": 347, "n_pbg_hunian": 243, "n_pbg_usaha": 70, "n_pbg_sosbud": 20, "retribusi": 1065728681, "n_imb_sample": 396, "n_imb_estimate": 1861, "n_pdam": 855, "n_bapenda": 67, "n_terdaftar": 2208, "gap": 28767, "gap_pct": 0.929, "pot_revenue_annual": 888543888, "samples": [{"nama": "PT HARTADINATA ABADI TBK", "alamat": "Margahayu, Sayati, Jalan Kopo Sayati No.165 RT.005 RW.006", "fungsi": "Sebagai Tempat Usaha", "luas": 2962, "retribusi": 96085882}, {"nama": "SULISTYO", "alamat": "Margahayu, Margahayu Tengah, JL. KOPO BIHBUL KM 6,5 NO. 22 B RT. 003 RW. 002", "fungsi": "Fungsi Usaha", "luas": 118, "retribusi": 51086078}, {"nama": "SULISTYO", "alamat": "Margahayu, Margahayu Tengah, JL. KOPO BIHBUL KM 6,5 NO. 22 B RT. 003 RW. 002", "fungsi": "Fungsi Usaha", "luas": 118, "retribusi": 51086078}, {"nama": "FRANS LEONARDO", "alamat": "Margahayu, Sayati, Jl. Kopo Bihbul KM. 6,5 No. 20", "fungsi": "Fungsi Usaha (UMKM)", "luas": 1336, "retribusi": 32047288}, {"nama": "FRANS LEONARDO", "alamat": "Margahayu, Sayati, Jl. Kopo Bihbul KM. 6,5 No. 20", "fungsi": "Fungsi Usaha (UMKM)", "luas": 1336, "retribusi": 32047288}]}, {"kec": "BOJONGSOANG", "lat": -6.978, "lon": 107.64, "pop": 114654, "luas": 27.81, "kepadatan": 4123, "n_rt": 30988, "n_bgn_estimate": 29439, "n_pbg": 791, "n_pbg_hunian": 597, "n_pbg_usaha": 118, "n_pbg_sosbud": 23, "retribusi": 6412056856, "n_imb_sample": 85, "n_imb_estimate": 399, "n_pdam": 4344, "n_bapenda": 64, "n_terdaftar": 1190, "gap": 28249, "gap_pct": 0.96, "pot_revenue_annual": 872544106, "samples": [{"nama": "Ngian Hin an CV. Indo Sari", "alamat": "Bojongsoang, Tegalluar, Jl. Raya Sapan No. 82B RT. 002/RW. 10", "fungsi": "Sebagai Tempat Usaha", "luas": 11483, "retribusi": 359962138}, {"nama": "YOSCHEN DANUN  ,MBA An PT FORTUNA MAKMUR", "alamat": "Bojongsoang, Lengkong, Boulevard Raya Lot S3, Podomoro Park, Jalan Bojongsoang R", "fungsi": "Sebagai Tempat Sosial Budaya", "luas": 12149, "retribusi": 173733746}, {"nama": "Ramdhan Fauzan Adhiman Supriatna an. PT.", "alamat": "Bojongsoang, Lengkong, Jl. Podomoro Boulevard Utara No. 7-9, Kec. Bojongsoang", "fungsi": "Sebagai Tempat Sosial Budaya", "luas": 8958, "retribusi": 154228710}, {"nama": "H. Yayat Nurhayat", "alamat": "Bojongsoang, Buahbatu, Kp. Rancaoray RT 001 RW 005", "fungsi": "Fungsi Usaha", "luas": 2512, "retribusi": 109425517}, {"nama": "H. Yayat Nurhayat", "alamat": "Bojongsoang, Buahbatu, Kp. Rancaoray RT 001 RW 005", "fungsi": "Fungsi Usaha", "luas": 2512, "retribusi": 109425517}]}, {"kec": "ARJASARI", "lat": -7.092, "lon": 107.617, "pop": 109176, "luas": 64.98, "kepadatan": 1680, "n_rt": 29507, "n_bgn_estimate": 28032, "n_pbg": 159, "n_pbg_hunian": 95, "n_pbg_usaha": 49, "n_pbg_sosbud": 5, "retribusi": 1258976939, "n_imb_sample": 28, "n_imb_estimate": 131, "n_pdam": 750, "n_bapenda": 9, "n_terdaftar": 290, "gap": 27742, "gap_pct": 0.99, "pot_revenue_annual": 856884088, "samples": [{"nama": "PARLINDUNGAN  SIAHAAN U/PT.MULTI SARANA ", "alamat": "Arjasari, Arjasari, KP.CIWARU RT.004 RW.003", "fungsi": "Sebagai Tempat Usaha", "luas": 9217, "retribusi": 239951323}, {"nama": "PARLINDUNGAN  SIAHAAN An PT.MULTI SARANA", "alamat": "Arjasari, Pinggirsari, KP.NEGLARASA RT.001 RW.005", "fungsi": "Sebagai Tempat Usaha", "luas": 6273, "retribusi": 163313729}, {"nama": "RIO RIZKI ADJIE  An PT.PUTRA RAHMAN PRAD", "alamat": "Arjasari, Baros, PERUMAHAN BUKIT PINUS BANJARAN", "fungsi": "Sebagai Tempat Tinggal", "luas": 300, "retribusi": 80608500}, {"nama": "PT ABADI MUKTI KIRANA", "alamat": "Arjasari, Pinggirsari, Perumahan Arjasari Hill\nJl.Desa Pinggir Sari Desa Pinggir", "fungsi": "Sebagai Tempat Tinggal", "luas": 300, "retribusi": 50663686}, {"nama": "Deny Ramdani An. PT. Hizqiya Berkah Sent", "alamat": "Arjasari, Baros, Kampung Babakan Tarogong RT 005 RW 001 Desa Baros\nKecamatan Arj", "fungsi": "Fungsi Hunian", "luas": 300, "retribusi": 36659385}]}, {"kec": "KUTAWARINGIN", "lat": -6.984, "lon": 107.512, "pop": 105625, "luas": 47.3, "kepadatan": 2233, "n_rt": 28547, "n_bgn_estimate": 27120, "n_pbg": 138, "n_pbg_hunian": 18, "n_pbg_usaha": 109, "n_pbg_sosbud": 4, "retribusi": 3296482343, "n_imb_sample": 0, "n_imb_estimate": 0, "n_pdam": 703, "n_bapenda": 13, "n_terdaftar": 138, "gap": 26982, "gap_pct": 0.995, "pot_revenue_annual": 833409504, "samples": [{"nama": "TOBI GUNAWAN", "alamat": "Kutawaringin, Gajah Mekar, Jl Raya Cipatik - Soreang KM 7 RT 005 RW 010", "fungsi": "Fungsi Usaha", "luas": 9956, "retribusi": 398446247}, {"nama": "TOBI GUNAWAN", "alamat": "Kutawaringin, Gajah Mekar, Jl Raya Cipatik - Soreang KM 7 RT 005 RW 010", "fungsi": "Fungsi Usaha", "luas": 9956, "retribusi": 398446247}, {"nama": "PAULUS SENJAYA", "alamat": "Kutawaringin, Jelegong, Kp. Jelekong", "fungsi": "Sebagai Tempat Usaha", "luas": 6954, "retribusi": 217992253}, {"nama": "Arif Rosmana, S.Si., A.Pt an. Direktur P", "alamat": "Kutawaringin, Kopo, Jl. Muara RT 001 RW 011, Desa Kopo, Kec. Kutawaringin, Kab. ", "fungsi": "Sebagai Tempat Usaha", "luas": 4326, "retribusi": 200040740}, {"nama": "Ronny Gunawan, SE.MM.CMA.Dip.ABRSIM a.n ", "alamat": "Kutawaringin, Kopo,  Jl. Soreang - Cipatik, Komplek Perdagangan & Jasa \"Jalak Ha", "fungsi": "Sebagai Tempat Usaha", "luas": 3856, "retribusi": 105941927}]}, {"kec": "DAYEUHKOLOT", "lat": -6.992, "lon": 107.622, "pop": 105855, "luas": 11.03, "kepadatan": 9597, "n_rt": 28609, "n_bgn_estimate": 27179, "n_pbg": 212, "n_pbg_hunian": 98, "n_pbg_usaha": 90, "n_pbg_sosbud": 12, "retribusi": 2033287519, "n_imb_sample": 170, "n_imb_estimate": 799, "n_pdam": 1963, "n_bapenda": 30, "n_terdaftar": 1011, "gap": 26168, "gap_pct": 0.963, "pot_revenue_annual": 808266989, "samples": [{"nama": "Lim I Nian / PT Anugrah Trimulia Tekstil", "alamat": "Dayeuhkolot, Cangkuang Wetan, Jl. Cisirung No. 173 ", "fungsi": "Sebagai Tempat Usaha", "luas": 291, "retribusi": 67068241}, {"nama": "PT. MULTI GARMENJAYA", "alamat": "Dayeuhkolot, Citeureup, Jl. Moch. Toha km. 7.3 No. 215, Desa/Kel. Citeurep, Kec.", "fungsi": "Fungsi Usaha", "luas": 9990, "retribusi": 60122689}, {"nama": "YUSAK IMAN SANTOSA an. PT. SINERGI BERSA", "alamat": "Dayeuhkolot, Cangkuang Wetan, JL. CISIRUNG RT 004 RW 008", "fungsi": "Fungsi Usaha", "luas": 1381, "retribusi": 57278587}, {"nama": "YUSAK IMAN SANTOSA an. PT. SINERGI BERSA", "alamat": "Dayeuhkolot, Cangkuang Wetan, JL. CISIRUNG RT 004 RW 008", "fungsi": "Fungsi Usaha", "luas": 1381, "retribusi": 57278587}, {"nama": "PT. KAIZEN AESTHETIC MEDICORE", "alamat": "Dayeuhkolot, Citeureup, Jalan Radio Nomor 149 Blok F", "fungsi": "Sebagai Tempat Usaha", "luas": 141, "retribusi": 55831812}]}, {"kec": "CIKANCUNG", "lat": -7.015, "lon": 107.847, "pop": 100495, "luas": 40.14, "kepadatan": 2504, "n_rt": 27161, "n_bgn_estimate": 25803, "n_pbg": 96, "n_pbg_hunian": 31, "n_pbg_usaha": 48, "n_pbg_sosbud": 4, "retribusi": 4795689527, "n_imb_sample": 20, "n_imb_estimate": 94, "n_pdam": 650, "n_bapenda": 9, "n_terdaftar": 190, "gap": 25613, "gap_pct": 0.993, "pot_revenue_annual": 791124365, "samples": [{"nama": "Huang Kuen Jeng", "alamat": "Cikancung, Cikasungka, Jalan Raya Cicalengka - Majalaya KM 3", "fungsi": "Sebagai Tempat Usaha", "luas": 70036, "retribusi": 2260289687}, {"nama": "Christian Rahardi An. PT Andalan Utama P", "alamat": "Cikancung, Cikasungka, Jalan Raya Cicalengka - Majalaya", "fungsi": "Fungsi Usaha;Fungsi Hunian", "luas": 8675, "retribusi": 496058570}, {"nama": "Christian Rahardi An. PT Andalan Utama P", "alamat": "Cikancung, Cikasungka, Jalan Raya Cicalengka - Majalaya", "fungsi": "Fungsi Usaha;Fungsi Hunian", "luas": 8675, "retribusi": 496058570}, {"nama": "Sukamat Karta Miharja", "alamat": "Cikancung, Cikasungka, Jl. Majalaya - Cicalengka Kp. Cipandan RT. 002 RW. 004", "fungsi": "Sebagai Tempat Usaha", "luas": 9816, "retribusi": 219782210}, {"nama": "PT. MITRA SARANA PURNAMA", "alamat": "Cikancung, Ciluluk, Jalan Raya Cijapati", "fungsi": "Sebagai Tempat Usaha", "luas": 654, "retribusi": 201230568}]}, {"kec": "PASIRJAMBU", "lat": -7.11, "lon": 107.461, "pop": 93775, "luas": 239.58, "kepadatan": 391, "n_rt": 25345, "n_bgn_estimate": 24078, "n_pbg": 60, "n_pbg_hunian": 8, "n_pbg_usaha": 36, "n_pbg_sosbud": 5, "retribusi": 1127795023, "n_imb_sample": 34, "n_imb_estimate": 159, "n_pdam": 750, "n_bapenda": 24, "n_terdaftar": 219, "gap": 23859, "gap_pct": 0.991, "pot_revenue_annual": 736947497, "samples": [{"nama": "SUDHARMAN SHETTY", "alamat": "Pasirjambu, Cukanggenteng, JL. RAYA SOREANG KM 25 BLK CIHALIWUNG", "fungsi": "Fungsi Usaha (UMKM)", "luas": 4001, "retribusi": 173276325}, {"nama": "SUDHARMAN SHETTY", "alamat": "Pasirjambu, Cukanggenteng, JL. RAYA SOREANG KM 25 BLK CIHALIWUNG", "fungsi": "Fungsi Usaha (UMKM)", "luas": 4001, "retribusi": 173276325}, {"nama": "Marcus Hartanto an. PT. Lapang Jaya Wisa", "alamat": "Pasirjambu, Cukanggenteng, Jl. Raya Soreang - Ciwidey Km. 25, Desa Cukanggenteng", "fungsi": "Sebagai Tempat Usaha", "luas": 3899, "retribusi": 154407035}, {"nama": "PT Geo Dipa Energi (Persero)", "alamat": "Pasirjambu, Sugihmukti, Jalan Ranca Bolang KM 5", "fungsi": "Fungsi Usaha", "luas": 32, "retribusi": 126724070}, {"nama": "PT Geo Dipa Energi (Persero)", "alamat": "Pasirjambu, Sugihmukti, Jalan Ranca Bolang KM 5", "fungsi": "Fungsi Usaha", "luas": 32, "retribusi": 126724070}]}, {"kec": "IBUN", "lat": -7.058, "lon": 107.793, "pop": 89712, "luas": 54.57, "kepadatan": 1644, "n_rt": 24246, "n_bgn_estimate": 23034, "n_pbg": 16, "n_pbg_hunian": 0, "n_pbg_usaha": 9, "n_pbg_sosbud": 4, "retribusi": 48949749, "n_imb_sample": 24, "n_imb_estimate": 112, "n_pdam": 163, "n_bapenda": 7, "n_terdaftar": 128, "gap": 22906, "gap_pct": 0.994, "pot_revenue_annual": 707511604, "samples": [{"nama": "PT. CENTRATAMA MENARA INDONESIA", "alamat": "Ibun, Dukuh, Kp. Tis Dingin RT. 003/008, Desa/Kel. Dukuh Kec. Ibun", "fungsi": "Sebagai Bangunan Prasarana", "luas": 1320, "retribusi": 12000000}, {"nama": "H. HIJRAH PURNAMA NUGRAHA", "alamat": "Ibun, Pangguh, KP. LALAREUN RT. 001/003", "fungsi": "Sebagai Tempat Usaha", "luas": 4170, "retribusi": 9164826}, {"nama": "PT Kero Rizki Abadi", "alamat": "Ibun, Talun, Jalan Pasir Angin Rt 005 Rw 005", "fungsi": "Fungsi Usaha (UMKM)", "luas": 1860, "retribusi": 6622663}, {"nama": "PT Kero Rizki Abadi", "alamat": "Ibun, Talun, Jalan Pasir Angin Rt 005 Rw 005", "fungsi": "Fungsi Usaha (UMKM)", "luas": 1860, "retribusi": 6622663}, {"nama": "Bagas Swara", "alamat": "Ibun, Tangulun, Kp. Panggilingan  RT 001 RW 006", "fungsi": "Sebagai Tempat Usaha", "luas": 2190, "retribusi": 6189567}]}, {"kec": "CIWIDEY", "lat": -7.142, "lon": 107.47, "pop": 89863, "luas": 48.47, "kepadatan": 1854, "n_rt": 24287, "n_bgn_estimate": 23073, "n_pbg": 54, "n_pbg_hunian": 12, "n_pbg_usaha": 27, "n_pbg_sosbud": 6, "retribusi": 224528230, "n_imb_sample": 33, "n_imb_estimate": 155, "n_pdam": 1171, "n_bapenda": 26, "n_terdaftar": 209, "gap": 22864, "gap_pct": 0.991, "pot_revenue_annual": 706214324, "samples": [{"nama": "Rambe Marodjahan B / PT Rumakita Prima P", "alamat": "Ciwidey, Panyocokan, Kp. Sukajadi ", "fungsi": "Sebagai Tempat Tinggal", "luas": 300, "retribusi": 24666201}, {"nama": "ANDREW WIJAYA", "alamat": "Ciwidey, Lebakmuncang, Jl Legok Kondang KP Cikarancang RT 003 RW 021", "fungsi": "Fungsi Hunian;Fungsi Usaha", "luas": 2100, "retribusi": 15505034}, {"nama": "ANDREW WIJAYA", "alamat": "Ciwidey, Lebakmuncang, Jl Legok Kondang KP Cikarancang RT 003 RW 021", "fungsi": "Fungsi Hunian;Fungsi Usaha", "luas": 2100, "retribusi": 15505034}, {"nama": "Hen Hen Asep Suhendar", "alamat": "Ciwidey, Ciwidey, Haur Koneng RT. 003/RW. 023 Desa Ciwidey", "fungsi": "Sebagai Tempat Usaha", "luas": 3900, "retribusi": 14999985}, {"nama": "Aman Yusman", "alamat": "Ciwidey, Panundaan, Jl Kolektor Primer 1 (KP1) Kp simpang RT 002 Rw 016", "fungsi": "Sebagai Tempat Usaha", "luas": 4500, "retribusi": 14522965}]}, {"kec": "CIMAUNG", "lat": -7.087, "lon": 107.566, "pop": 89418, "luas": 55.0, "kepadatan": 1626, "n_rt": 24167, "n_bgn_estimate": 22959, "n_pbg": 92, "n_pbg_hunian": 42, "n_pbg_usaha": 25, "n_pbg_sosbud": 11, "retribusi": 367430825, "n_imb_sample": 6, "n_imb_estimate": 28, "n_pdam": 2, "n_bapenda": 13, "n_terdaftar": 120, "gap": 22839, "gap_pct": 0.995, "pot_revenue_annual": 705442134, "samples": [{"nama": "ATEP SUHERMAN", "alamat": "Cimaung, Cikalong, Jl Raya Pangalengan KP. Cibiana", "fungsi": "Fungsi Usaha (UMKM)", "luas": 9800, "retribusi": 32555850}, {"nama": "ATEP SUHERMAN", "alamat": "Cimaung, Cikalong, Jl Raya Pangalengan KP. Cibiana", "fungsi": "Fungsi Usaha (UMKM)", "luas": 9800, "retribusi": 32555850}, {"nama": "PT. PERSADA SOKKA TAMA", "alamat": "Cimaung, Cipinang, Kp. Cikalong Pondok Rosa, RT. 001 RW. 010", "fungsi": "Bangunan Prasarana", "luas": 810, "retribusi": 30000000}, {"nama": "Budianto Purwahjo QQ PT. Tower Bersama", "alamat": "Cimaung, Mekarsari, Kp. Cilimus RT001 RW008 Desa Mekarsari Kecamatan Cimaung Kab", "fungsi": "Bangunan Prasarana", "luas": 1440, "retribusi": 30000000}, {"nama": "Budianto Purwahjo QQ PT. Tower Bersama", "alamat": "Cimaung, Mekarsari, Kp. Cilimus RT001 RW008 Desa Mekarsari Kecamatan Cimaung Kab", "fungsi": "Bangunan Prasarana", "luas": 1440, "retribusi": 30000000}]}, {"kec": "SOLOKANJERUK", "lat": -7.02, "lon": 107.748, "pop": 88774, "luas": 24.01, "kepadatan": 3697, "n_rt": 23993, "n_bgn_estimate": 22793, "n_pbg": 57, "n_pbg_hunian": 23, "n_pbg_usaha": 20, "n_pbg_sosbud": 6, "retribusi": 1520973236, "n_imb_sample": 0, "n_imb_estimate": 0, "n_pdam": 3542, "n_bapenda": 9, "n_terdaftar": 57, "gap": 22736, "gap_pct": 0.997, "pot_revenue_annual": 702260710, "samples": [{"nama": "Yuda Kasikin Kurniawan", "alamat": "Solokanjeruk, Rancakasumba, Jl. Baru, Kp. Lalareun RT 01 RW 03", "fungsi": "Sebagai Tempat Usaha", "luas": 4849, "retribusi": 186493275}, {"nama": "ABU DZAR AL-GIFARI an PT. SAMUDRA GRIYA ", "alamat": "Solokanjeruk, Solokanjeruk, KP. SUKARAJA KALER RT.005 RW.001", "fungsi": "Fungsi Hunian;Fungsi Usaha (UM", "luas": 1100, "retribusi": 151165585}, {"nama": "ABU DZAR AL-GIFARI an PT. SAMUDRA GRIYA ", "alamat": "Solokanjeruk, Solokanjeruk, KP. SUKARAJA KALER RT.005 RW.001", "fungsi": "Fungsi Hunian;Fungsi Usaha (UM", "luas": 1100, "retribusi": 151165585}, {"nama": "ABU DZAR AL-GIFARI an PT. SAMUDRA GRIYA ", "alamat": "Solokanjeruk, Solokanjeruk, KP. SUKARAJA KALER RT.005 RW.001", "fungsi": "Fungsi Hunian", "luas": 400, "retribusi": 92691840}, {"nama": "ABU DZAR AL-GIFARI an PT. SAMUDRA GRIYA ", "alamat": "Solokanjeruk, Solokanjeruk, KP. SUKARAJA KALER RT.005 RW.001", "fungsi": "Fungsi Hunian", "luas": 400, "retribusi": 92691840}]}, {"kec": "PAMEUNGPEUK", "lat": -7.044, "lon": 107.604, "pop": 88676, "luas": 14.62, "kepadatan": 6065, "n_rt": 23966, "n_bgn_estimate": 22768, "n_pbg": 104, "n_pbg_hunian": 54, "n_pbg_usaha": 37, "n_pbg_sosbud": 8, "retribusi": 1190790790, "n_imb_sample": 25, "n_imb_estimate": 117, "n_pdam": 2887, "n_bapenda": 8, "n_terdaftar": 221, "gap": 22547, "gap_pct": 0.99, "pot_revenue_annual": 696422952, "samples": [{"nama": "HANNY WAROKKA a.n. PT. FENG TAY INDONESI", "alamat": "Pameungpeuk, Bojongmanggu, Jl. Raya Banjaran No. KM 14,6 ", "fungsi": "Sebagai Tempat Usaha", "luas": 4143, "retribusi": 129871220}, {"nama": "RUDI MARTINEZ MULIA", "alamat": "Pameungpeuk, Langonsari, JL RAYA BANJARAN KM 11,5 KEC, PAMEUNGPEUK KEL, LANGONSA", "fungsi": "Sebagai Tempat Usaha", "luas": 3417, "retribusi": 97998518}, {"nama": "Nur Irwansyah, SE / PT Riski Anugerah Se", "alamat": "Pameungpeuk, Bojongkunci, Jalan Paledang Kp. Paledang RT 001 RW 009", "fungsi": "Sebagai Tempat Tinggal", "luas": 400, "retribusi": 48154860}, {"nama": "Nur Irwansyah, SE / PT Riski Anugerah Se", "alamat": "Pameungpeuk, Bojongkunci, Jalan Paledang Kp. Paledang RT 001 RW 009", "fungsi": "Sebagai Tempat Tinggal", "luas": 400, "retribusi": 48154860}, {"nama": " ALBERT SALIM /PT. WEHARIMA LANGGENG LES", "alamat": "Pameungpeuk, Sukasari, JL. WAAS NO 41 RT 06 RW 01 ", "fungsi": "Sebagai Tempat Usaha", "luas": 2136, "retribusi": 47827710}]}, {"kec": "CANGKUANG", "lat": -7.04, "lon": 107.564, "pop": 83935, "luas": 24.61, "kepadatan": 3411, "n_rt": 22685, "n_bgn_estimate": 21551, "n_pbg": 366, "n_pbg_hunian": 305, "n_pbg_usaha": 53, "n_pbg_sosbud": 5, "retribusi": 1167485714, "n_imb_sample": 0, "n_imb_estimate": 0, "n_pdam": 7056, "n_bapenda": 11, "n_terdaftar": 366, "gap": 21185, "gap_pct": 0.983, "pot_revenue_annual": 654354026, "samples": [{"nama": "Firdaus / PT. Koprima Sandysejahtera", "alamat": "Cangkuang, Bandasari, Desa Nagrak dan Desa Bandasari", "fungsi": "Sebagai Tempat Tinggal", "luas": 300, "retribusi": 96455124}, {"nama": "ROSIHAN AN PT CIPTA INDAH PERTIWI", "alamat": "Cangkuang, Cangkuang, Jl. Cangkuang-Cikalong Blok Kubang Kampung Cangkuang RT.00", "fungsi": "Sebagai Tempat Tinggal", "luas": 560, "retribusi": 60563853}, {"nama": "DEWI PUSPLA SARI An. PT KIEN CAI INDONES", "alamat": "Cangkuang, Ciluncat, Jalan Raya Banjaran RT.01/01", "fungsi": "Sebagai Tempat Usaha", "luas": 1931, "retribusi": 54605513}, {"nama": "Lydia Juliani Widharma/ PT. Graha Adicip", "alamat": "Cangkuang, Pananjung, Jalan Banda Sari RT.04/02", "fungsi": "Sebagai Tempat Tinggal", "luas": 640, "retribusi": 46611865}, {"nama": "Firdaus / PT. Koprima Sandysejahtera", "alamat": "Cangkuang, Bandasari, Desa Nagrak dan Desa Bandasari", "fungsi": "Sebagai Tempat Tinggal", "luas": 360, "retribusi": 44876017}]}, {"kec": "KERTASARI", "lat": -7.181, "lon": 107.7, "pop": 72183, "luas": 152.07, "kepadatan": 475, "n_rt": 19509, "n_bgn_estimate": 18534, "n_pbg": 15, "n_pbg_hunian": 0, "n_pbg_usaha": 10, "n_pbg_sosbud": 3, "retribusi": 62054637, "n_imb_sample": 7, "n_imb_estimate": 32, "n_pdam": 0, "n_bapenda": 4, "n_terdaftar": 47, "gap": 18487, "gap_pct": 0.997, "pot_revenue_annual": 571019253, "samples": [{"nama": "Bella Regina Susan Anggraina, S.Tr.Keb.", "alamat": "Kertasari, Sukapura, KP. BARUKASO RT 001 RW 010", "fungsi": "Fungsi Usaha (UMKM);Fungsi Hun", "luas": 6250, "retribusi": 22231484}, {"nama": "Bella Regina Susan Anggraina, S.Tr.Keb.", "alamat": "Kertasari, Sukapura, KP. BARUKASO RT 001 RW 010", "fungsi": "Fungsi Usaha (UMKM);Fungsi Hun", "luas": 6250, "retribusi": 22231484}, {"nama": "Nelis Nurhayati", "alamat": "Kertasari, Cibeureum, Kp. Cibeureum RT001/RW011", "fungsi": "Sebagai Tempat Usaha", "luas": 1450, "retribusi": 3979666}, {"nama": "H. Wawan Sofwan an. Yayasan Dzurriyyatus", "alamat": "Kertasari, Cibeureum, Blok Suhunan RT. 004 RW. 005", "fungsi": "Fungsi Sosial Budaya", "luas": 5680, "retribusi": 3495546}, {"nama": "H. Wawan Sofwan an. Yayasan Dzurriyyatus", "alamat": "Kertasari, Cibeureum, Blok Suhunan RT. 004 RW. 005", "fungsi": "Fungsi Sosial Budaya", "luas": 5680, "retribusi": 3495546}]}, {"kec": "NAGREG", "lat": -7.029, "lon": 107.89, "pop": 60807, "luas": 49.3, "kepadatan": 1233, "n_rt": 16434, "n_bgn_estimate": 15612, "n_pbg": 52, "n_pbg_hunian": 23, "n_pbg_usaha": 16, "n_pbg_sosbud": 4, "retribusi": 1261075072, "n_imb_sample": 0, "n_imb_estimate": 0, "n_pdam": 0, "n_bapenda": 16, "n_terdaftar": 52, "gap": 15560, "gap_pct": 0.997, "pot_revenue_annual": 480611218, "samples": [{"nama": "Dr. H.M. Faiz Mufidi, SH.MH. / Yayasan R", "alamat": "Nagreg, Citaman, Jl. Raya Bandung - Garut", "fungsi": "Sebagai Tempat Sosial Budaya", "luas": 27598, "retribusi": 403723179}, {"nama": "Andreas Edwin Endarto  (A.n.  PT. KENDAN", "alamat": "Nagreg, Nagreg Kendan, Blok Cilarangan, Nagreg", "fungsi": "Sebagai Tempat Usaha", "luas": 59, "retribusi": 233622477}, {"nama": "YAHYA WESI PUTRA an. PT PRIMA BOEMI KREA", "alamat": "Nagreg, Ganjar Sabar, JL. RAYA BANDUNG-GARUT RT 003 RW 015 (T42/60)", "fungsi": "Fungsi Hunian", "luas": 420, "retribusi": 65738335}, {"nama": "YAHYA WESI PUTRA an. PT PRIMA BOEMI KREA", "alamat": "Nagreg, Ganjar Sabar, JL. RAYA BANDUNG-GARUT RT 003 RW 015 (T42/60)", "fungsi": "Fungsi Hunian", "luas": 420, "retribusi": 65738335}, {"nama": "KENT WIJAYA", "alamat": "Nagreg, Citaman, Kp. Cilimus RT 001 RW 006", "fungsi": "Fungsi Usaha", "luas": 8250, "retribusi": 62761300}]}, {"kec": "CILENGKRANG", "lat": -6.89, "lon": 107.73, "pop": 58637, "luas": 30.12, "kepadatan": 1947, "n_rt": 15848, "n_bgn_estimate": 15056, "n_pbg": 127, "n_pbg_hunian": 109, "n_pbg_usaha": 10, "n_pbg_sosbud": 2, "retribusi": 295038985, "n_imb_sample": 17, "n_imb_estimate": 79, "n_pdam": 0, "n_bapenda": 6, "n_terdaftar": 206, "gap": 14850, "gap_pct": 0.986, "pot_revenue_annual": 458681014, "samples": [{"nama": "Ryan Hilman Setiawan / PT. Tilford Pilar", "alamat": "Cilengkrang, Jatiendah, Blok Cibatu Meong, Jl. Cibatu Mulya Raya ", "fungsi": "Sebagai Tempat Tinggal", "luas": 700, "retribusi": 44777391}, {"nama": "Budianto Purwahjo QQ PT. Tower Bersama", "alamat": "Cilengkrang, Ciporeat, Kp. Pasir Jirak RT. 004 RW. 005 Desa Ciporeat Kecamatan C", "fungsi": "Bangunan Prasarana", "luas": 300, "retribusi": 30000000}, {"nama": "Budianto Purwahjo QQ PT. Tower Bersama", "alamat": "Cilengkrang, Ciporeat, Kp. Pasir Jirak RT. 004 RW. 005 Desa Ciporeat Kecamatan C", "fungsi": "Bangunan Prasarana", "luas": 300, "retribusi": 30000000}, {"nama": "BAMBANG NURMUHAMAD ISYA HADI An. PT AMBE", "alamat": "Cilengkrang, Girimekar, Perumahan Green Harmoni Residence", "fungsi": "Fungsi Hunian", "luas": 360, "retribusi": 18571892}, {"nama": "BAMBANG NURMUHAMAD ISYA HADI An. PT AMBE", "alamat": "Cilengkrang, Girimekar, Perumahan Green Harmoni Residence", "fungsi": "Fungsi Hunian", "luas": 360, "retribusi": 18571892}]}, {"kec": "RANCABALI", "lat": -7.18, "lon": 107.408, "pop": 51589, "luas": 148.37, "kepadatan": 348, "n_rt": 13943, "n_bgn_estimate": 13246, "n_pbg": 12, "n_pbg_hunian": 3, "n_pbg_usaha": 6, "n_pbg_sosbud": 0, "retribusi": 61150365, "n_imb_sample": 0, "n_imb_estimate": 0, "n_pdam": 30, "n_bapenda": 55, "n_terdaftar": 12, "gap": 13234, "gap_pct": 0.999, "pot_revenue_annual": 408766636, "samples": [{"nama": "Budianto Purwahjo a.n. PT. Tower Bersama", "alamat": "Rancabali, Cipelah, Kp. Cisabuk RT. 03 RW. 07 Desa Cipelah Kecamatan Rancabali K", "fungsi": "Sebagai Bangunan Prasarana", "luas": 1400, "retribusi": 12000000}, {"nama": "Budianto Purwahjo a.n. PT. Tower Bersama", "alamat": "Rancabali, Cipelah, Kp. Cisabuk RT. 03 RW. 07 Desa Cipelah Kecamatan Rancabali K", "fungsi": "Sebagai Bangunan Prasarana", "luas": 1400, "retribusi": 12000000}, {"nama": "IWAN ISWANDI CV. TIANZA", "alamat": "Rancabali, Alamendah, KP SINAPEUL RT 01 RW 011,\nDESA/KELURAHAN ALAMENDAH,\nKEC. R", "fungsi": "Sebagai Tempat Usaha", "luas": 3370, "retribusi": 7625429}, {"nama": "Didik Riyanto", "alamat": "Rancabali, Alamendah, Kp. Cikareo RT. 005 RW. 026", "fungsi": "Fungsi Usaha (UMKM);Fungsi Sos", "luas": 1440, "retribusi": 6499159}, {"nama": "Didik Riyanto", "alamat": "Rancabali, Alamendah, Kp. Cikareo RT. 005 RW. 026", "fungsi": "Fungsi Usaha (UMKM);Fungsi Sos", "luas": 1440, "retribusi": 6499159}]}];
 
-// ============ HELPERS ============
 const fmtN = n => Math.round(n).toLocaleString('id-ID');
 const fmtPct = n => (n*100).toFixed(1).replace('.',',') + '%';
 const fmtRpM = n => {
@@ -344,43 +390,29 @@ const fmtRpM = n => {
   if (n >= 1e6) return 'Rp ' + (n/1e6).toFixed(1).replace('.',',') + ' jt';
   return 'Rp ' + fmtN(n);
 };
-
 function gapColor(pct){
-  if (pct >= 0.985) return '#9C2A2A';
-  if (pct >= 0.97)  return '#D26A4A';
-  if (pct >= 0.95)  return '#F4C078';
-  return '#FFF8E0';
+  if (pct >= 0.985) return '#C0392B';
+  if (pct >= 0.97)  return '#D55C35';
+  if (pct >= 0.95)  return '#E89B43';
+  return '#E8C56A';
 }
 
 // ============ MAP ============
-const map = L.map('map', {
-  zoomControl: true,
-  attributionControl: true,
-  scrollWheelZoom: true,
-}).setView([-7.02, 107.65], 10);
+const map = L.map('map', {zoomControl:true, attributionControl:true, scrollWheelZoom:true}).setView([-7.05, 107.62], 10);
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a> | Data: SIMBG · BPS · Bapenda',
-  maxZoom: 18,
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
+  attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a> | SIMBG · BPS · Bapenda',
+  maxZoom:19, subdomains:'abcd',
 }).addTo(map);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
-  pane: 'shadowPane',
-  maxZoom: 18,
-}).addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {maxZoom:19, subdomains:'abcd', pane:'shadowPane'}).addTo(map);
 
-// Add circles
 let circles = [];
 let sizeMode = 'gap';
 
 function radiusFor(rec){
-  if (sizeMode === 'gap'){
-    // sqrt scaling
-    return 4 + Math.sqrt(rec.gap) / 6;
-  } else {
-    return 4 + Math.sqrt(rec.pop) / 30;
-  }
+  if (sizeMode === 'gap') return 5 + Math.sqrt(rec.gap) / 12;
+  return 5 + Math.sqrt(rec.pop) / 32;
 }
-
 function popupHTML(rec){
   return `
     <div class="pop-title">${rec.kec}</div>
@@ -389,26 +421,22 @@ function popupHTML(rec){
     <div class="pop-row"><span class="lbl">IMB legacy est.</span><span class="val">${fmtN(rec.n_imb_estimate)}</span></div>
     <div class="pop-row"><span class="lbl">Gap absolut</span><span class="val gap">${fmtN(rec.gap)}</span></div>
     <div class="pop-row"><span class="lbl">Gap %</span><span class="val gap">${fmtPct(rec.gap_pct)}</span></div>
-    <div class="pop-cta">Klik untuk detail →</div>
-  `;
+    <div class="pop-cta">Klik untuk detail →</div>`;
 }
+function circleOpacity(){ return map.getZoom() >= 14 ? 0.25 : 0.78; }
 
 function drawCircles(){
   circles.forEach(c => map.removeLayer(c));
   circles = [];
   KEC_DATA.forEach(rec => {
     const c = L.circleMarker([rec.lat, rec.lon], {
-      radius: radiusFor(rec),
-      fillColor: gapColor(rec.gap_pct),
-      color: '#1A1814',
-      weight: 1.5,
-      opacity: 1,
-      fillOpacity: 0.78,
+      radius: radiusFor(rec), fillColor: gapColor(rec.gap_pct),
+      color:'#0A0B0E', weight:1.5, opacity:1, fillOpacity:circleOpacity(),
     }).addTo(map);
     c.bindPopup(popupHTML(rec));
     c.on('click', () => showDetail(rec.kec));
-    c.on('mouseover', function(){ this.setStyle({weight:2.5}); });
-    c.on('mouseout', function(){ this.setStyle({weight:1.5}); });
+    c.on('mouseover', function(){ this.setStyle({weight:2.5, fillOpacity:Math.min(0.9, circleOpacity()+0.3)}); });
+    c.on('mouseout', function(){ this.setStyle({weight:1.5, fillOpacity:circleOpacity()}); });
     c._kec = rec.kec;
     circles.push(c);
   });
@@ -424,141 +452,198 @@ document.getElementById('size-toggle').addEventListener('click', e => {
   }
 });
 
+// ============ BUILDING FOOTPRINTS (Overpass) ============
+let buildingLayer = null;
+let bldgEnabled = false;
+let simEnabled = false;
+let fetchTimer = null;
+let lastBldgKey = '';
+
+const statusDot = document.getElementById('status-dot');
+const statusText = document.getElementById('status-text');
+function setStatus(text, state){
+  statusText.textContent = text;
+  statusDot.className = 'dot' + (state ? ' '+state : '');
+}
+
+function clearBuildings(){
+  if (buildingLayer){ map.removeLayer(buildingLayer); buildingLayer = null; }
+}
+
+function buildingStyle(){
+  if (simEnabled){
+    // ~1.8% registered (green), rest no-PBG (red) — RANDOM simulation
+    const hasPBG = Math.random() < 0.018;
+    return hasPBG
+      ? {color:'#5FA35F', weight:1, fillColor:'#5FA35F', fillOpacity:0.55}
+      : {color:'#C0392B', weight:0.6, fillColor:'#C0392B', fillOpacity:0.32};
+  }
+  return {color:'#8A8578', weight:0.6, fillColor:'#8A8578', fillOpacity:0.30};
+}
+
+function buildingPopup(el){
+  if (simEnabled){
+    return `Bangunan OSM #${el.id}<br><span style="color:#E8C56A">Status: SIMULASI (acak, bukan data riil)</span><br>Setelah geocoding: status PBG riil`;
+  }
+  return `Bangunan OSM #${el.id}<br>Status PBG: <span style="color:#8A8578">belum diverifikasi</span><br>Menunggu geocoding alamat PBG`;
+}
+
+async function fetchBuildings(){
+  if (!bldgEnabled) return;
+  const zoom = map.getZoom();
+  if (zoom < 16){
+    clearBuildings();
+    setStatus(`Mode bangunan aktif — zoom in ke level jalan (sekarang z${zoom}, perlu z16+)`, null);
+    return;
+  }
+  const b = map.getBounds();
+  const key = `${b.getSouth().toFixed(3)},${b.getWest().toFixed(3)},${b.getNorth().toFixed(3)},${b.getEast().toFixed(3)}`;
+  if (key === lastBldgKey && buildingLayer) return;
+  lastBldgKey = key;
+
+  const bbox = `${b.getSouth()},${b.getWest()},${b.getNorth()},${b.getEast()}`;
+  setStatus('Memuat bangunan dari OpenStreetMap…', 'loading');
+  const query = `[out:json][timeout:25];(way["building"](${bbox}););out geom;`;
+  const endpoints = ['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter'];
+
+  for (let i=0; i<endpoints.length; i++){
+    try {
+      const res = await fetch(endpoints[i], {method:'POST', body:query});
+      if (!res.ok) throw new Error('http '+res.status);
+      const data = await res.json();
+      clearBuildings();
+      buildingLayer = L.layerGroup();
+      let count = 0;
+      data.elements.forEach(el => {
+        if (el.type === 'way' && el.geometry && el.geometry.length > 2){
+          const latlngs = el.geometry.map(g => [g.lat, g.lon]);
+          const poly = L.polygon(latlngs, buildingStyle());
+          poly.bindPopup(buildingPopup(el));
+          buildingLayer.addLayer(poly);
+          count++;
+        }
+      });
+      buildingLayer.addTo(map);
+      const simNote = simEnabled ? ' · MODE SIMULASI (warna acak)' : ' · status: belum diverifikasi';
+      setStatus(`${fmtN(count)} bangunan ditampilkan${simNote}`, 'done');
+      return;
+    } catch(e){
+      if (i === endpoints.length-1){
+        setStatus('Gagal memuat (Overpass sibuk/limit). Zoom lebih dekat atau coba lagi.', null);
+      }
+    }
+  }
+}
+
+function scheduleFetch(){
+  if (!bldgEnabled) return;
+  clearTimeout(fetchTimer);
+  fetchTimer = setTimeout(fetchBuildings, 500);
+}
+
+map.on('moveend zoomend', () => {
+  // update circle opacity based on zoom
+  circles.forEach(c => c.setStyle({fillOpacity:circleOpacity()}));
+  scheduleFetch();
+});
+
+document.getElementById('bldg-toggle').addEventListener('change', e => {
+  bldgEnabled = e.target.checked;
+  document.getElementById('bldg-legend').classList.toggle('show', bldgEnabled);
+  if (bldgEnabled){
+    lastBldgKey = '';
+    fetchBuildings();
+  } else {
+    clearBuildings();
+    setStatus('Tampilan kabupaten — klik kecamatan untuk detail. Zoom in untuk lihat bangunan.', null);
+  }
+});
+
+document.getElementById('sim-toggle').addEventListener('change', e => {
+  simEnabled = e.target.checked;
+  document.getElementById('sim-warn').classList.toggle('show', simEnabled);
+  if (bldgEnabled && buildingLayer){
+    lastBldgKey = '';
+    fetchBuildings();
+  }
+});
+
 // ============ DETAIL PANEL ============
 function showDetail(kec){
   const r = KEC_DATA.find(x => x.kec === kec);
   if (!r) return;
-
-  // Highlight in table
-  document.querySelectorAll('#ranking tbody tr').forEach(tr => {
-    tr.classList.toggle('active', tr.dataset.kec === kec);
-  });
-
-  // Pan map
-  map.setView([r.lat, r.lon], 11, {animate:true});
+  document.querySelectorAll('#ranking tbody tr').forEach(tr => tr.classList.toggle('active', tr.dataset.kec === kec));
+  map.setView([r.lat, r.lon], Math.max(map.getZoom(), 11), {animate:true});
   const circle = circles.find(c => c._kec === kec);
-  if (circle) circle.openPopup();
+  if (circle && !bldgEnabled) circle.openPopup();
 
   const composition = [
-    {label:'Hunian', n: r.n_pbg_hunian, color:'#A8893A'},
-    {label:'Usaha', n: r.n_pbg_usaha, color:'#9C2A2A'},
-    {label:'Sosbud', n: r.n_pbg_sosbud, color:'#3A6B3A'},
-    {label:'Lain', n: r.n_pbg - r.n_pbg_hunian - r.n_pbg_usaha - r.n_pbg_sosbud, color:'#6B5F4D'},
+    {label:'Hunian', n:r.n_pbg_hunian, color:'#D4A94A'},
+    {label:'Usaha', n:r.n_pbg_usaha, color:'#E2674A'},
+    {label:'Sosbud', n:r.n_pbg_sosbud, color:'#5FA35F'},
+    {label:'Lain', n:r.n_pbg - r.n_pbg_hunian - r.n_pbg_usaha - r.n_pbg_sosbud, color:'#7C776B'},
   ].filter(x => x.n > 0);
-  const totalPbg = composition.reduce((a,b) => a+b.n, 0) || 1;
+  const totalPbg = composition.reduce((a,b)=>a+b.n,0) || 1;
   const compHTML = composition.map(c => `
     <div class="composition-row">
       <span class="composition-label">${c.label}</span>
-      <div class="composition-bar-wrap">
-        <div class="composition-bar" style="width:${(c.n/totalPbg*100).toFixed(1)}%;background:${c.color}"></div>
-      </div>
+      <div class="composition-bar-wrap"><div class="composition-bar" style="width:${(c.n/totalPbg*100).toFixed(1)}%;background:${c.color}"></div></div>
       <span class="composition-num">${fmtN(c.n)}</span>
-    </div>
-  `).join('');
+    </div>`).join('');
 
-  const samplesHTML = (r.samples || []).map(s => `
+  const samplesHTML = (r.samples||[]).map(s => `
     <div class="sample-card">
-      <div class="sample-nama">${s.nama || '-'}</div>
-      <div class="sample-meta">
-        <span>${s.alamat || '-'}</span>
-      </div>
+      <div class="sample-nama">${s.nama||'-'}</div>
+      <div class="sample-meta"><span>${s.alamat||'-'}</span></div>
       <div class="sample-meta" style="margin-top:4px">
-        <span class="sample-fungsi">${s.fungsi || '-'}</span>
+        <span class="sample-fungsi">${s.fungsi||'-'}</span>
         <span>${fmtN(s.luas)} m² · ${fmtRpM(s.retribusi)}</span>
       </div>
-    </div>
-  `).join('');
+    </div>`).join('');
 
-  // PBG + IMB stacked bar
-  const totalReg = r.n_pbg + r.n_imb_estimate;
   const totalBgn = r.n_bgn_estimate;
-  const pbgPct = (r.n_pbg / totalBgn * 100).toFixed(2);
-  const imbPct = (r.n_imb_estimate / totalBgn * 100).toFixed(2);
-  // Use min visual width 0.3% if non-zero
-  const pbgWidth = r.n_pbg > 0 ? Math.max(0.5, pbgPct) : 0;
-  const imbWidth = r.n_imb_estimate > 0 ? Math.max(0.5, imbPct) : 0;
+  const pbgWidth = r.n_pbg > 0 ? Math.max(0.5, r.n_pbg/totalBgn*100) : 0;
+  const imbWidth = r.n_imb_estimate > 0 ? Math.max(0.5, r.n_imb_estimate/totalBgn*100) : 0;
 
   document.getElementById('detail-panel').innerHTML = `
     <div class="detail-title">${r.kec}</div>
     <div class="detail-sub">${fmtN(r.pop)} jiwa · ${r.luas.toString().replace('.',',')} km² · ${fmtN(r.kepadatan)} jiwa/km²</div>
-
     <div class="metric-grid">
-      <div class="metric">
-        <div class="metric-label">Est. Bangunan</div>
-        <div class="metric-val">${fmtN(r.n_bgn_estimate)}</div>
-        <div class="metric-sub">${fmtN(r.n_rt)} RT × 0,95</div>
-      </div>
-      <div class="metric">
-        <div class="metric-label">Total Terdaftar</div>
-        <div class="metric-val ok">${fmtN(r.n_terdaftar)}</div>
-        <div class="metric-sub">PBG + IMB legacy est.</div>
-      </div>
-      <div class="metric">
-        <div class="metric-label">Gap Absolut</div>
-        <div class="metric-val gap">${fmtN(r.gap)}</div>
-        <div class="metric-sub">${fmtPct(r.gap_pct)} dari total</div>
-      </div>
-      <div class="metric">
-        <div class="metric-label">Pot. Retribusi/thn</div>
-        <div class="metric-val">${fmtRpM(r.pot_revenue_annual)}</div>
-        <div class="metric-sub">@ 50% compliance</div>
-      </div>
+      <div class="metric"><div class="metric-label">Est. Bangunan</div><div class="metric-val">${fmtN(r.n_bgn_estimate)}</div><div class="metric-sub">${fmtN(r.n_rt)} RT × 0,95</div></div>
+      <div class="metric"><div class="metric-label">Total Terdaftar</div><div class="metric-val ok">${fmtN(r.n_terdaftar)}</div><div class="metric-sub">PBG + IMB est.</div></div>
+      <div class="metric"><div class="metric-label">Gap Absolut</div><div class="metric-val gap">${fmtN(r.gap)}</div><div class="metric-sub">${fmtPct(r.gap_pct)} dari total</div></div>
+      <div class="metric"><div class="metric-label">Pot. Retribusi/thn</div><div class="metric-val">${fmtRpM(r.pot_revenue_annual)}</div><div class="metric-sub">@ 50% compliance</div></div>
     </div>
-
     <div class="section-h">Komposisi Bangunan</div>
     <div class="gap-bar">
-      ${r.n_pbg > 0 ? `<div class="gap-bar-pbg" style="width:${pbgWidth}%" title="PBG: ${fmtN(r.n_pbg)}">PBG ${fmtN(r.n_pbg)}</div>` : ''}
-      ${r.n_imb_estimate > 0 ? `<div class="gap-bar-imb" style="width:${imbWidth}%" title="IMB legacy est: ${fmtN(r.n_imb_estimate)}">IMB ~${fmtN(r.n_imb_estimate)}</div>` : ''}
-      <div class="gap-bar-gap">Belum tertangkap: ${fmtN(r.gap)}</div>
+      ${r.n_pbg>0?`<div class="gap-bar-pbg" style="width:${pbgWidth}%">PBG ${fmtN(r.n_pbg)}</div>`:''}
+      ${r.n_imb_estimate>0?`<div class="gap-bar-imb" style="width:${imbWidth}%">IMB ~${fmtN(r.n_imb_estimate)}</div>`:''}
+      <div class="gap-bar-gap">Gap: ${fmtN(r.gap)}</div>
     </div>
-
-    ${r.n_pbg > 0 ? `
-    <div class="section-h">Kategori PBG Terdaftar (${fmtN(r.n_pbg)} berkas)</div>
-    ${compHTML}
-    ` : ''}
-
+    ${r.n_pbg>0?`<div class="section-h">Kategori PBG (${fmtN(r.n_pbg)} berkas)</div>${compHTML}`:''}
     <div class="section-h">Data Pendamping</div>
     <div class="metric-grid">
-      <div class="metric">
-        <div class="metric-label">Pelanggan PDAM</div>
-        <div class="metric-val" style="font-size:18px">${fmtN(r.n_pdam)}</div>
-        <div class="metric-sub">${r.n_pdam > 0 ? 'cross-match candidate' : 'tidak terlayani PDAM'}</div>
-      </div>
-      <div class="metric">
-        <div class="metric-label">WP Bapenda</div>
-        <div class="metric-val" style="font-size:18px">${fmtN(r.n_bapenda)}</div>
-        <div class="metric-sub">hotel/resto/hiburan/reklame</div>
-      </div>
+      <div class="metric"><div class="metric-label">Pelanggan PDAM</div><div class="metric-val" style="font-size:18px">${fmtN(r.n_pdam)}</div><div class="metric-sub">${r.n_pdam>0?'cross-match candidate':'tidak terlayani'}</div></div>
+      <div class="metric"><div class="metric-label">WP Bapenda</div><div class="metric-val" style="font-size:18px">${fmtN(r.n_bapenda)}</div><div class="metric-sub">usaha terdaftar</div></div>
     </div>
-
-    ${r.samples && r.samples.length > 0 ? `
-    <div class="section-h">5 PBG Terdaftar dgn Retribusi Tertinggi</div>
-    ${samplesHTML}
-    ` : ''}
-
-    <div class="note">
-      <strong>Strategi penertiban kecamatan ini:</strong>
-      ${r.n_bapenda > 30 ? `Mulai dari ${r.n_bapenda} WP Bapenda — cross-match alamat usaha mereka dengan SIMBG. Yang tidak ada PBG = target prioritas pertama. ` : ''}
-      ${r.n_pdam > 5000 ? `Dengan ${fmtN(r.n_pdam)} pelanggan PDAM, ada pool besar untuk cross-match. Setiap pelanggan PDAM = 1 bangunan kemungkinan besar. ` : ''}
-      ${r.gap > 30000 ? `Gap > 30K bangunan — butuh program sistematis multi-tahun, bukan ad-hoc.` : ''}
-    </div>
-  `;
+    ${r.samples&&r.samples.length>0?`<div class="section-h">5 PBG Retribusi Tertinggi</div>${samplesHTML}`:''}
+    <div class="note"><strong>Strategi penertiban:</strong>
+      ${r.n_bapenda>30?`Mulai dari ${r.n_bapenda} WP Bapenda — cross-match alamat usaha dgn SIMBG. `:''}
+      ${r.n_pdam>5000?`${fmtN(r.n_pdam)} pelanggan PDAM = pool cross-match besar. `:''}
+      ${r.gap>30000?`Gap >30K — butuh program sistematis multi-tahun.`:'Gap moderat, bisa ditangani bertahap.'}
+    </div>`;
 }
 
 // ============ TABLE ============
-let sortKey = 'gap';
-let sortDir = -1;
-
+let sortKey = 'gap', sortDir = -1;
 function renderTable(){
   const sorted = [...KEC_DATA].sort((a,b) => {
-    let av = a[sortKey], bv = b[sortKey];
-    if (typeof av === 'string') av = av.toLowerCase();
-    if (typeof bv === 'string') bv = bv.toLowerCase();
-    if (av < bv) return -1 * sortDir;
-    if (av > bv) return 1 * sortDir;
-    return 0;
+    let av=a[sortKey], bv=b[sortKey];
+    if (typeof av==='string') av=av.toLowerCase();
+    if (typeof bv==='string') bv=bv.toLowerCase();
+    return av<bv ? -sortDir : av>bv ? sortDir : 0;
   });
-  const html = sorted.map((r, i) => `
+  document.querySelector('#ranking tbody').innerHTML = sorted.map((r,i) => `
     <tr data-kec="${r.kec}">
       <td class="rank-cell">${String(i+1).padStart(2,'0')}</td>
       <td class="kec-cell">${r.kec}</td>
@@ -569,37 +654,24 @@ function renderTable(){
       <td class="num">${fmtN(r.gap)}</td>
       <td class="num gap-pct-cell">${fmtPct(r.gap_pct)}</td>
       <td class="num">${fmtRpM(r.pot_revenue_annual)}</td>
-    </tr>
-  `).join('');
-  document.querySelector('#ranking tbody').innerHTML = html;
-  // Update header arrows
-  document.querySelectorAll('#ranking th .arrow').forEach(a => a.textContent = '');
-  const activeArrow = document.querySelector(`#ranking th[data-key="${sortKey}"] .arrow`);
-  if (activeArrow) activeArrow.textContent = sortDir === 1 ? '↑' : '↓';
-  // Re-bind click
-  document.querySelectorAll('#ranking tbody tr').forEach(tr => {
-    tr.addEventListener('click', () => showDetail(tr.dataset.kec));
-  });
+    </tr>`).join('');
+  document.querySelectorAll('#ranking th .arrow').forEach(a => a.textContent='');
+  const aEl = document.querySelector(`#ranking th[data-key="${sortKey}"] .arrow`);
+  if (aEl) aEl.textContent = sortDir===1?'↑':'↓';
+  document.querySelectorAll('#ranking tbody tr').forEach(tr => tr.addEventListener('click', () => showDetail(tr.dataset.kec)));
 }
 renderTable();
+document.querySelectorAll('#ranking th').forEach(th => th.addEventListener('click', () => {
+  const k = th.dataset.key;
+  if (k==='rank') return;
+  if (sortKey===k) sortDir*=-1; else { sortKey=k; sortDir=-1; }
+  renderTable();
+}));
 
-// Header click for sort
-document.querySelectorAll('#ranking th').forEach(th => {
-  th.addEventListener('click', () => {
-    const k = th.dataset.key;
-    if (k === 'rank') return;
-    if (sortKey === k) sortDir *= -1;
-    else { sortKey = k; sortDir = -1; }
-    renderTable();
-  });
-});
-
-// Auto-load BALEENDAH detail on page load (highest gap)
 setTimeout(() => {
-  const top = [...KEC_DATA].sort((a,b) => b.gap - a.gap)[0];
+  const top = [...KEC_DATA].sort((a,b)=>b.gap-a.gap)[0];
   if (top) showDetail(top.kec);
-}, 600);
+}, 500);
 </script>
-
 </body>
 </html>
